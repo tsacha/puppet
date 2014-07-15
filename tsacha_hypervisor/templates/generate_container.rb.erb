@@ -11,12 +11,8 @@ OptionParser.new do |opts|
   opts.banner = "Usage: generate_container.rb [options]"
   options[:version] = "wheezy"
 
-  opts.on("--hostname [HOSTNAME]", "Hostname") do |h|
-    options[:hostname] = h
-  end
-
-  opts.on("--domain [DOMAIN]", "Domain") do |d|
-    options[:domain] = d
+  opts.on("--fqdn [FQDN]", "FQDN") do |f|
+    options[:fqdn] = f
   end
 
   opts.on("--ip [IP]", "IP address") do |i|
@@ -116,6 +112,7 @@ if not File.exist?("/srv/#{options[:version]}.tar") then
   FileUtils.rm_rf("tmprootfs")
 end
 
+options[:hostname] = options[:fqdn].split(".").first
 
 Dir.chdir('/var/lib/lxc')
 if not File.exists?(options[:hostname])
@@ -151,7 +148,7 @@ chroot = Process.fork do
   
   system("/usr/sbin/locale-gen en_GB.UTF-8")
   
-  outdata = "#{options[:hostname]}.#{options[:domain]}\n"
+  outdata = "#{options[:fqdn]}\n"
   File.open("/etc/hostname", 'w') do |out|
     out << outdata
   end
@@ -205,7 +202,7 @@ EOF
 
   outdata = <<EOF
 127.0.0.1       localhost
-#{options[:ip]}             #{options[:hostname]}.#{options[:domain]} #{options[:hostname]}
+#{options[:ip]}             #{options[:fqdn]} #{options[:hostname]}
 #{options[:ip6puppet]}             #{options[:puppet]}
 ::1             localhost ip6-localhost ip6-loopback
 fe00::0         ip6-localnet
@@ -270,7 +267,7 @@ EOF
   filename = "/etc/puppet/puppet.conf"
   outdata = File.read(filename)
   
-  outdata.gsub!(/\[master\]/, "server=#{options[:puppet]}\ncertname=#{options[:hostname]}.#{options[:domain]}\n[master]") if not outdata.include?("certname")
+  outdata.gsub!(/\[master\]/, "server=#{options[:puppet]}\ncertname=#{options[:fqdn]}\n[master]") if not outdata.include?("certname")
   
   File.open(filename, 'w') do |out|
     out << outdata

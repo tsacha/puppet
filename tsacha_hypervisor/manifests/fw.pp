@@ -1,25 +1,28 @@
 class tsacha_hypervisor::fw {
 
-  $ip_private_range = hiera('network::ip_private_range')
-  $ip_private_address = hiera('network::ip_private_address')
-  $cidr_private = hiera('network::cidr_private')
-  $ip_address = hiera('network::ip_address')
-  $cidr = hiera('network::cidr')
-  $gateway = hiera('network::gateway')
-  $ip6_address = hiera('network::ip6_address')
-  $cidr6 = hiera('network::cidr6')
-  $gateway6 = hiera('network::gateway6')
-  $dns_ip = hiera('dns::ip')
-  $ldap_ip = hiera('ldap::ip')
-  $mail_ip = hiera('mail::ip')
-  $psql_ip = hiera('psql::ip')
-  $im_ip = hiera('im::ip')
-  $web_ip = hiera('web::ip')
-  $glenn_ip = hiera('glenn::ip')
+  $hosts = hiera_hash('hosts')
+
+  $ip_private_range = $hosts[$hostname]['physical']['ip_private_range']
+  $ip_private_address = $hosts[$hostname]['physical']['ip_private_address']
+  $cidr_private = $hosts[$hostname]['physical']['cidr_private']
+  $ip_address = $hosts[$hostname]['physical']['ip']
+  $cidr = $hosts[$hostname]['physical']['cidr']
+  $gateway = $hosts[$hostname]['physical']['gateway']
+  $ip6_address = $hosts[$hostname]['physical']['ip6']
+  $cidr6 = $hosts[$hostname]['physical']['cidr6']
+  $gateway6 = $hosts[$hostname]['physical']['gateway6']
+
+  $dns_ip = $hosts[$hostname]['dns']['ip']
+  $ldap_ip = $hosts[$hostname]['ldap']['ip']
+  $mail_ip = $hosts[$hostname]['mail']['ip']
+  $psql_ip = $hosts[$hostname]['psql']['ip']
+  $im_ip = $hosts[$hostname]['im']['ip']
+  $web_ip = $hosts[$hostname]['web']['ip']
+  $glenn_ip = $hosts[$hostname]['glenn']['ip']
   
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
- # Postrouting, masquerade
+  # Postrouting, masquerade
   file { "/etc/iptables.up.rules":
     owner => root,
     group => root,

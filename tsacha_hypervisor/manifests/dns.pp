@@ -7,18 +7,19 @@ class tsacha_hypervisor::dns {
 
   Class['tsacha_common::auth'] -> Class['tsacha_hypervisor::lxc'] -> Class['tsacha_hypervisor::dns']
 
-  $idhypervisor = hiera('containers::idhypervisor')
-  $dns_cidr = hiera('containers::cidr')
-  $dns_cidr6 = hiera('containers::cidr6')
-  $dns_gateway = hiera('containers::gateway')
-  $dns_gateway6 = hiera('containers::gateway6')
-  $dns_puppet = hiera('containers::puppet')
-  $dns_ip_puppet = hiera('containers::ip_puppet')
-  $dns_ip6_puppet = hiera('containers::ip6_puppet')
-  $dns_fqdn = hiera('containers::fqdn')
-  $dns_hostname = hiera('dns::hostname')
-  $dns_ip = hiera('dns::ip')
-  $dns_ip6 = hiera('dns::ip6')
+  $hosts = hiera_hash('hosts')
+
+  $idhypervisor = $hosts[$hostname]['physical']['idhypervisor']
+  $dns_cidr = $hosts[$hostname]['physical']['cidr_private']
+  $dns_cidr6 = $hosts[$hostname]['physical']['cidr6']
+  $dns_gateway = $hosts[$hostname]['physical']['ip_private_address']
+  $dns_gateway6 = $hosts[$hostname]['physical']['gateway6']
+  $dns_puppet = $hosts['kerbin']['physical']['fqdn']
+  $dns_ip_puppet = $hosts['kerbin']['physical']['ip']
+  $dns_ip6_puppet = $hosts['kerbin']['physical']['ip6']
+  $dns_fqdn = $hosts[$hostname]['dns']['fqdn']
+  $dns_ip = $hosts[$hostname]['dns']['ip']
+  $dns_ip6 = $hosts[$hostname]['dns']['ip6']
 
   Exec { path => [ "/srv", "/opt/libvirt/bin", "/opt/libvirt/sbin", "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
@@ -31,7 +32,7 @@ class tsacha_hypervisor::dns {
   }
 
   exec { "generate-dns-container":
-    command => "ruby /srv/generate_container.rb --hostname $dns_hostname --domain $fqdn --ip $dns_ip --cidr $dns_cidr --gateway $dns_gateway --ip6 $dns_ip6 --cidr6 $dns_cidr6 --gateway6 $dns_gateway6 --dns 8.8.8.8 --puppet $dns_puppet --ippuppet $dns_ip_puppet --ip6puppet $dns_ip6_puppet --idhypervisor $idhypervisor --version testing",
+    command => "ruby /srv/generate_container.rb --fqdn $dns_fqdn --ip $dns_ip --cidr $dns_cidr --gateway $dns_gateway --ip6 $dns_ip6 --cidr6 $dns_cidr6 --gateway6 $dns_gateway6 --dns 8.8.8.8 --puppet $dns_puppet --ippuppet $dns_ip_puppet --ip6puppet $dns_ip6_puppet --idhypervisor $idhypervisor --version testing",
     unless => "virsh list --all | grep dns",
     timeout => 500
   } ->

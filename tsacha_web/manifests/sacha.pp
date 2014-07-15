@@ -41,7 +41,7 @@ class tsacha_web::sacha {
     unless => 'stat /srv/web/sacha'
   }
 
-  package { ['ruby-dev','build-essential','less']:
+  package { ['ruby-dev','less']:
     ensure => installed,
   } ->
 

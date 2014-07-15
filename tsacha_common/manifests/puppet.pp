@@ -1,5 +1,6 @@
 class tsacha_common::puppet {
-  $puppet = hiera('containers::puppet')
+  $hosts = hiera_hash('hosts')
+  $puppet = $hosts['kerbin']['physical']['fqdn']
 
   file { "/etc/puppet/puppet.conf":
     owner => root,
@@ -32,5 +33,9 @@ class tsacha_common::puppet {
     mode => 755,
     ensure => present,
     content => template('tsacha_common/etckeeper-commit-post.erb'),
+  }
+
+  service { 'puppet':
+    ensure => running
   }
 }

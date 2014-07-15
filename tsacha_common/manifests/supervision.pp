@@ -1,6 +1,6 @@
 class tsacha_common::supervision {
 
-  $sup_pubkey = hiera('common::sup_pubkey')
+  $sup_pubkey = hiera('sup_pubkey')
 
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
@@ -40,7 +40,7 @@ class tsacha_common::supervision {
 
   file_line { 'sup-ssh':
     path => '/var/lib/nagios/.ssh/authorized_keys',
-    line => "no-port-forwarding,no-agent-forwarding,no-X11-forwarding,no-pty $sup_pubkey",
+    line => file($sup_pubkey),
     require => File['/var/lib/nagios/.ssh/authorized_keys']
   }
 
@@ -59,7 +59,7 @@ class tsacha_common::supervision {
   } ->
   
   exec { "compile-plugins":
-    command => "bash configure && make && make install",
+    command => "/opt/nagios-plugins-1.5/configure && make && make install",
     cwd => "/opt/nagios-plugins-1.5",
     timeout => 1000,
     require => Package['build-essential'],

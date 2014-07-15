@@ -1,25 +1,6 @@
 class tsacha_common::auth {
 
-  $kerbin_pubkey = hiera('common::kerbin_pubkey')
-
-  $container = hiera('containers::container')
-  if($container == false) {
-    file { "/root/.ssh/id_ecdsa":
-      owner => root,
-      group => root,
-      mode => 600,
-      ensure => present,
-      source => "puppet:///modules/tsacha_private/ssh/$hostname",
-    }  
-
-    file { "/root/.ssh/id_ecdsa.pub":
-      owner => root,
-      group => root,
-      mode => 644,
-      ensure => present,
-      source => "puppet:///modules/tsacha_private/ssh/$hostname.pub",
-    }  
-  }
+  $pubkeys = hiera('pubkeys')
 
   # Compute node will use controller node to resolv dns
   file { "/root/.ssh/authorized_keys":
@@ -29,9 +10,11 @@ class tsacha_common::auth {
     ensure  => present,
   }  
  
-  file_line { 'kerbin-ssh':
-    path => '/root/.ssh/authorized_keys',
-    line => "$kerbin_pubkey",
+  define ssh-authorized($file) {
+    file_line { "ssh-authorized-$file":
+      path => '/root/.ssh/authorized_keys',
+      line => file($file)
+    }
   }
-
+  create_resources(ssh-authorized, $pubkeys)
 }
