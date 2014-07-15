@@ -1,0 +1,14 @@
+/**
+ * A host definition. You can create your own configuration files
+ * in the conf.d directory (e.g. one per host). By default all *.conf
+ * files in this directory are included.
+ */
+object Host "<%= @fqdn %>" {
+  import "generic-host"
+
+  address = "<%= @ipaddress %>"
+  address6 = "<%= @ipaddress6 %>"
+
+  vars.os = "Linux"
+  vars.sla = "24x7"
+}

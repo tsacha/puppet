@@ -1,0 +1,27 @@
+$TTL 180
+7.0.3.7.1.5.1.0.8.f.4.0.1.0.a.2.ip6.arpa.                                   IN SOA    tremoureux.fr. sacha.tremoureux.fr. (
+                                                                                2014032102 ; serial
+                                                                                86400      ; refresh (1 day)
+                                                                                3600       ; retry (1 hour)
+                                                                                3600000    ; expire (5 weeks 6 days 16 hours)
+                                                                                300        ; minimum (5 minutes)
+                                                                            )
+                                                                            
+                                                                            NS                     dns.oslo.s.tremoureux.fr.
+                                                                            NS                     bergen.s.tremoureux.fr.
+                                                                            
+2.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0                                             PTR                    oslo.s.tremoureux.fr.
+2.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0                                             PTR                    dns.oslo.s.tremoureux.fr.
+3.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0                                             PTR                    web.oslo.s.tremoureux.fr.
+4.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0                                             PTR                    mail.oslo.s.tremoureux.fr.
+5.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0                                             PTR                    psql.oslo.s.tremoureux.fr.
+6.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0                                             PTR                    ldap.oslo.s.tremoureux.fr.
+7.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0                                             PTR                    im.oslo.s.tremoureux.fr.
+8.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0                                             PTR                    vpn.oslo.s.tremoureux.fr.
+0.0.0.0.0.0.0.0.0.0.0.0.2.0.0.0                                             PTR                    vpn.oslo.s.tremoureux.fr.
+0.0.0.0.0.0.0.0.1.0.0.0.2.0.0.0                                             PTR                    lakselv.s.tremoureux.fr.
+0.0.0.0.0.0.0.0.2.0.0.0.2.0.0.0                                             PTR                    narvik.s.tremoureux.fr.
+0.0.0.0.0.0.0.0.3.0.0.0.2.0.0.0                                             PTR                    trondheim.s.tremoureux.fr.
+0.0.0.0.0.0.0.0.4.0.0.0.2.0.0.0                                             PTR                    hammerfest.s.tremoureux.fr.
+0.0.0.0.0.0.0.0.5.0.0.0.2.0.0.0                                             PTR                    kirkenes.s.tremoureux.fr.
+9.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0                                             PTR                    mumble.oslo.s.tremoureux.fr.

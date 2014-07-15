@@ -1,0 +1,5 @@
+ldap_servers: ldaps://ldap.s.tremoureux.fr/
+ldap_search_base: ou=users,dc=ldap,dc=s,dc=tremoureux,dc=fr
+ldap_bind_dn: cn=prosody,dc=ldap,dc=s,dc=tremoureux,dc=fr
+ldap_password: <%= @ldap_im_password %>
+ldap_filter: (&(objectClass=person)(mail=%u@%d))

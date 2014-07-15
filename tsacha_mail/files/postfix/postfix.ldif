@@ -1,0 +1,6 @@
+dn: cn=postfix,dc=ldap,dc=s,dc=tremoureux,dc=fr
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: postfix
+description: Postfix User
+userPassword:

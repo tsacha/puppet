@@ -1,0 +1,10 @@
+bind = yes
+bind_dn = cn=postfix,dc=ldap,dc=s,dc=tremoureux,dc=fr
+bind_pw = <%= @postfix_password %>
+version = 3
+timeout = 20
+server_host = ldaps://ldap.s.tremoureux.fr
+scope = sub
+search_base = ou=users,dc=ldap,dc=s,dc=tremoureux,dc=fr
+query_filter = (&(mailAlias=%s))
+result_attribute = mail

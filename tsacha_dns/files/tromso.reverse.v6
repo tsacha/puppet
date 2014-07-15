@@ -1,0 +1,14 @@
+$TTL 180
+0.0.1.0.0.5.3.3.8.c.b.0.1.0.0.2.ip6.arpa.                                   IN SOA    tremoureux.fr. sacha.tremoureux.fr. (
+                                                                                2014020301 ; serial
+                                                                                86400      ; refresh (1 day)
+                                                                                3600       ; retry (1 hour)
+                                                                                3600000    ; expire (5 weeks 6 days 16 hours)
+                                                                                300        ; minimum (5 minutes)
+                                                                            )
+                                                                            
+                                                                            NS                     dns.oslo.s.tremoureux.fr.
+                                                                            NS                     bergen.s.tremoureux.fr.
+                                                                            
+1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0                                             PTR                    tromso.s.tremoureux.fr.
+

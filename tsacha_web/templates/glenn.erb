@@ -1,0 +1,22 @@
+<VirtualHost *:80>
+  ServerName glenn.pro
+  ServerAlias *.glenn.pro
+  DocumentRoot /srv/web/glenn
+  <Directory /srv/web/glenn>
+    AllowOverride All
+  </Directory>
+</VirtualHost>
+
+<VirtualHost *:443>
+  ServerName glenn.pro
+  ServerAlias *.glenn.pro
+  DocumentRoot /srv/web/glenn
+  <Directory /srv/web/glenn>
+    AllowOverride All
+  </Directory>
+
+  SSLEngine on
+  SSLCertificateFile /srv/certs/glenn.pro.crt
+  SSLCertificateKeyFile /srv/certs/glenn.pro.key
+  SSLCACertificateFile /srv/certs/gandi.pem
+</VirtualHost>

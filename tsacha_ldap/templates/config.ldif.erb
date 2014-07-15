@@ -1,0 +1,32 @@
+dn: olcDatabase={1}hdb,cn=config
+changetype: modify
+
+dn: olcDatabase={1}hdb,cn=config
+replace: olcSuffix
+olcSuffix: dc=ldap,dc=s,dc=tremoureux,dc=fr
+
+dn: olcDatabase={1}hdb,cn=config
+replace: olcRootDN
+olcRootDN: cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr
+
+dn: olcDatabase={1}hdb,cn=config
+replace: olcAccess
+olcAccess: {0}to attrs=userPassword,shadowLastChange by dn="cn=dovecot,dc=ldap,dc=s,dc=tremoureux,dc=fr" read by self write by anonymous auth by dn="cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr" write by * none
+olcAccess: {1}to dn.sub="ou=users,dc=ldap,dc=s,dc=tremoureux,dc=fr" by dn="cn=dovecot,dc=ldap,dc=s,dc=tremoureux,dc=fr" read by dn="cn=postfix,dc=ldap,dc=s,dc=tremoureux,dc=fr" read by dn="cn=prosody,dc=ldap,dc=s,dc=tremoureux,dc=fr" read by anonymous auth by self write by * none
+olcAccess: {2}to * by self write by dn="cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr" write
+
+dn: olcDatabase={1}hdb,cn=config
+replace: olcDbIndex
+olcDbIndex: mail,objectClass eq
+
+dn: cn=config
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: /srv/certs/ldap.crt
+
+dn: cn=config
+replace: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /srv/certs/ldap.key
+
+dn: cn=config
+replace: olcTLSCACertificateFile
+olcTLSCACertificateFile: /srv/certs/ldap.pem

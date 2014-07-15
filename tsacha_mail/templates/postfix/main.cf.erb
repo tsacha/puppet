@@ -1,0 +1,88 @@
+# See /usr/share/postfix/main.cf.dist for a commented, more complete version
+
+
+# Debian specific:  Specifying a file name will cause the first
+# line of that file to be used as the name.  The Debian default
+# is /etc/mailname.
+#myorigin = /etc/mailname
+
+smtpd_banner = $myhostname ESMTP $mail_name (Debian/GNU)
+biff = no
+
+# Uncomment the next line to generate "delayed mail" warnings
+#delay_warning_time = 4h
+
+readme_directory = no
+
+# TLS parameters
+smtpd_tls_key_file = /srv/certs/mail.key
+smtpd_tls_cert_file = /srv/certs/mail.crt
+smtpd_tls_CAfile = /srv/certs/mail.pem
+
+smtpd_use_tls=yes
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+
+# See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
+# information on enabling SSL in the smtp client.
+
+myhostname = mail.s.tremoureux.fr
+virtual_alias_maps = hash:/etc/postfix/virtual,proxy:ldap:/etc/postfix/ldap-virtual.cf
+alias_maps = hash:/etc/postfix/aliases
+alias_database = hash:/etc/postfix/aliases
+myorigin = mail.oslo.s.tremoureux.fr
+mydestination = mail.s.tremoureux.fr, localhost.localdomain, localhost, tremoureux.fr, mail.oslo.s.tremoureux.fr, glenn.pro, glenn-s.eu, terres-creuses.fr
+relayhost = 
+mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
+mailbox_size_limit = 0
+recipient_delimiter = +
+inet_interfaces = all
+
+message_size_limit = 102400000 
+
+# DKIM 
+milter_default_action = accept
+milter_protocol = 6
+smtpd_milters = unix:/var/run/opendkim/opendkim.sock
+non_smtpd_milters = unix:/var/run/opendkim/opendkim.sock
+
+#enable SMTP auth for relaying
+smtpd_sasl_auth_enable       = yes
+broken_sasl_auth_clients     = yes
+smtpd_sasl_type              = dovecot
+smtpd_sasl_path              = private/auth
+
+
+# deliver with Dovecot 
+
+mailbox_transport = lmtp:unix:private/dovecot-lmtp
+local_recipient_maps = 
+
+smtpd_sender_restrictions =
+        permit_sasl_authenticated,
+        permit_mynetworks,
+        reject_non_fqdn_sender,
+        reject_unknown_sender_domain,
+        permit
+
+smtpd_recipient_restrictions =
+        permit_sasl_authenticated,
+        permit_mynetworks,
+        reject_unauth_pipelining,
+        reject_unknown_recipient_domain,
+        reject_unauth_destination,
+        reject_non_fqdn_sender,
+        reject_non_fqdn_recipient,
+        reject_invalid_helo_hostname,
+        reject_unlisted_recipient,
+        reject_unlisted_sender,
+        reject_non_fqdn_helo_hostname,
+        reject_rbl_client zen.spamhaus.org,
+        reject_rbl_client zombie.dnsbl.sorbs.net,
+        reject_rbl_client cbl.abuseat.org,
+        reject_rbl_client dsn.rfc-ignorant.org,
+        reject_rbl_client dul.dnsbl.sorbs.net,
+        reject_rbl_client sbl-xbl.spamhaus.org,
+        reject_rbl_client bl.spamcop.net,
+        reject_rbl_client ix.dnsbl.manitu.net,
+        reject_rbl_client combined.rbl.msrbl.net

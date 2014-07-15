@@ -1,0 +1,22 @@
+<VirtualHost *:80>
+  ServerName webmail.s.tremoureux.fr
+  ServerAlias webmail.s.tremoureux.fr m.trs.io
+  DocumentRoot /srv/web/webmail
+  <Directory /srv/web/webmail>
+    AllowOverride All
+  </Directory>
+</VirtualHost>
+
+<VirtualHost *:443>
+  ServerName webmail.s.tremoureux.fr
+  ServerAlias webmail.s.tremoureux.fr m.trs.io
+  DocumentRoot /srv/web/webmail
+  <Directory /srv/web/webmail>
+    AllowOverride All
+  </Directory>
+
+  SSLEngine on
+  SSLCertificateFile /srv/certs/s.tremoureux.fr.crt
+  SSLCertificateKeyFile /srv/certs/s.tremoureux.fr.key
+  SSLCACertificateFile /srv/certs/gandi.pem
+</VirtualHost>

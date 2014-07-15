@@ -1,0 +1,10 @@
+object Service "load" {
+  import "generic-service"
+
+  host_name = "<%= @hostname %>"
+  check_command = "by_ssh"
+  vars.by_ssh_options = "StrictHostKeyChecking=no"
+  vars.sla = "24x7"
+  
+  vars.by_ssh_command = PluginDir + "/check_load -w 5.0,4.0,3.0 -c 10.0,6.0,4.0"
+}

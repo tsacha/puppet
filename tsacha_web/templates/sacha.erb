@@ -1,0 +1,31 @@
+<VirtualHost *:80>
+  ServerName s.tremoureux.fr
+  ServerAlias s.tremoureux.fr sacha.tremoureux.fr trs.io
+  DocumentRoot /srv/web/sacha/_site
+  <Directory /srv/web/sacha>
+    AllowOverride All
+  </Directory>
+</VirtualHost>
+
+<VirtualHost *:80>
+  ServerName drafts.s.tremoureux.fr
+  ServerAlias drafts.s.tremoureux.fr dr.trs.io
+  DocumentRoot /srv/web/sacha-drafts/_site
+  <Directory /srv/web/sacha>
+    AllowOverride All
+  </Directory>
+</VirtualHost>
+
+<VirtualHost *:443>
+  ServerName s.tremoureux.fr
+  ServerAlias s.tremoureux.fr sacha.tremoureux.fr trs.io
+  DocumentRoot /srv/web/sacha/_site
+  <Directory /srv/web/blog>
+    AllowOverride All
+  </Directory>
+
+  SSLEngine on
+  SSLCertificateFile /srv/certs/s.tremoureux.fr.crt
+  SSLCertificateKeyFile /srv/certs/s.tremoureux.fr.key
+  SSLCACertificateFile /srv/certs/gandi.pem
+</VirtualHost>

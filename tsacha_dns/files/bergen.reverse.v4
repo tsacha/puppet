@@ -1,0 +1,13 @@
+$TTL 180
+210.218.98.87.in-addr.arpa.    IN SOA    tremoureux.fr. sacha.tremoureux.fr. (
+                                   2014020301 ; serial
+                                   86400      ; refresh (1 day)
+                                   3600       ; retry (1 hour)
+                                   3600000    ; expire (5 weeks 6 days 16 hours)
+                                   300        ; minimum (5 minutes)
+                               )
+		               
+                               NS                     dns.oslo.s.tremoureux.fr.
+                               NS                     bergen.s.tremoureux.fr.
+		               
+                               PTR                    bergen.s.tremoureux.fr.

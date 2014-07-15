@@ -1,0 +1,37 @@
+*raw
+:PREROUTING ACCEPT
+:OUTPUT ACCEPT
+COMMIT
+*nat
+:PREROUTING ACCEPT
+:INPUT ACCEPT
+:OUTPUT ACCEPT
+:POSTROUTING ACCEPT
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 53 -j DNAT --to-destination <%= @dns_ip %>:53
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p udp -m udp --dport 53 -j DNAT --to-destination <%= @dns_ip %>:53
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 80 -j DNAT --to-destination <%= @web_ip %>:80
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 443 -j DNAT --to-destination <%= @web_ip %>:443
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 993 -j DNAT --to-destination <%= @mail_ip %>:993
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 25 -j DNAT --to-destination <%= @mail_ip %>:25
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 587 -j DNAT --to-destination <%= @mail_ip %>:587
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 636 -j DNAT --to-destination <%= @ldap_ip %>:636
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 5432 -j DNAT --to-destination <%= @psql_ip %>:5432
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 5222 -j DNAT --to-destination <%= @im_ip %>:5222
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 5224 -j DNAT --to-destination <%= @im_ip %>:5224
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 5269 -j DNAT --to-destination <%= @im_ip %>:5269
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 22<%= @glenn_ip.split(".")[3] %> -j DNAT --to-destination <%= @glenn_ip %>:22
+-A POSTROUTING -s <%= @ip_private_range %>/<%= @cidr_private %> -j MASQUERADE
+COMMIT
+*mangle
+:PREROUTING ACCEPT
+:INPUT ACCEPT
+:FORWARD ACCEPT
+:OUTPUT ACCEPT
+:POSTROUTING ACCEPT
+COMMIT
+*filter
+:INPUT ACCEPT
+:FORWARD ACCEPT
+:OUTPUT ACCEPT
+-A FORWARD -d <%= @ip_private_range %>/<%= @cidr_private %> -m state --state RELATED,ESTABLISHED -j ACCEPT
+COMMIT

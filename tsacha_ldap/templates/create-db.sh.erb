@@ -1,0 +1,8 @@
+#!/bin/bash
+/etc/init.d/slapd stop
+rm -Rf /var/lib/ldap/*
+slapadd -l db.ldif
+chown openldap:openldap -R /var/lib/ldap/
+/etc/init.d/slapd start
+sleep 1
+ldappasswd -H ldaps://ldap.s.tremoureux.fr -D "cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr" -w "$1" -s "$2"

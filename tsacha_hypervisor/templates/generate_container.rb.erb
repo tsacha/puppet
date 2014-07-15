@@ -1,0 +1,358 @@
+#!/usr/bin/env ruby
+require 'optparse'
+require 'libvirt'
+require 'fileutils'
+require 'net/http'
+require 'etc'
+require 'facter'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: generate_container.rb [options]"
+  options[:version] = "wheezy"
+
+  opts.on("--hostname [HOSTNAME]", "Hostname") do |h|
+    options[:hostname] = h
+  end
+
+  opts.on("--domain [DOMAIN]", "Domain") do |d|
+    options[:domain] = d
+  end
+
+  opts.on("--ip [IP]", "IP address") do |i|
+    options[:ip] = i
+  end
+
+  opts.on("--cidr [CIDR]", "CIDR") do |c|
+    options[:cidr] = c
+  end
+
+  opts.on("--gateway [GATEWAY]", "Gateway") do |g|
+    options[:gateway] = g
+  end
+
+  opts.on("--ip6 [IPv6]", "IPv6") do |i6|
+    options[:ip6] = i6
+  end
+
+  opts.on("--cidr6 [CIDR]", "CIDR v6") do |c6|
+    options[:cidr6] = c6
+  end
+
+  opts.on("--gateway6 [GATEWAY]", "Gateway v6") do |g6|
+    options[:gateway6] = g6
+  end
+
+  opts.on("--version [VERSION]", "Debian version") do |v|
+    options[:version] = v
+  end
+
+  opts.on("--puppet [PUPPET SERVER]", "Puppet server") do |p|
+    options[:puppet] = p
+  end
+
+  opts.on("--ippuppet [IP PUPPET SERVER]", "IP Puppet server") do |ph|
+    options[:ippuppet] = ph
+  end
+
+  opts.on("--ip6puppet [IPv6 PUPPET SERVER]", "IPv6 Puppet server") do |p6h|
+    options[:ip6puppet] = p6h
+  end
+
+  opts.on("--dns [DNS SERVER]", "Debian Version") do |dn|
+    options[:dns] = dn
+  end
+
+  opts.on("--idhypervisor [ID Hypervisor]", "ID Hypervisor") do |ih|
+    options[:idhypervisor] = ih
+  end
+
+end.parse!
+
+
+Dir.chdir('/srv')
+
+macs = Array.new
+
+conn = Libvirt::open("lxc:///")
+
+# Domaines actifs
+conn.list_domains.each do |domid|
+  dom = conn.lookup_domain_by_id(domid)
+  dom.xml_desc.each_line do |line|
+    next if not line.match(/^( )*\<mac address/)
+    macs << line.gsub(/^( )*\<mac address=\'(.+)\'\/\>/,'\2')[0...-1]
+  end
+end
+
+# Domaines inactifs
+conn.list_defined_domains.each do |domname|
+  dom = conn.lookup_domain_by_name(domname)
+  dom.xml_desc.each_line do |line|
+    next if not line.match(/^( )*\<mac address/)
+    macs << line.gsub(/^( )*\<mac address=\'(.+)\'\/\>/,'\2')[0...-1]
+  end
+end
+
+begin
+  mac = "52:54:00:#{options[:idhypervisor]}0:"+(1..2).map{"%0.2X"%rand(256)}.join(":")
+end while macs.include?(mac)
+
+begin
+  mac6 = "52:54:00:#{options[:idhypervisor]}1:"+(1..2).map{"%0.2X"%rand(256)}.join(":")
+end while macs.include?(mac)
+
+
+if not File.exist?("/srv/#{options[:version]}.tar") then
+  if options[:version] == "testing" then
+    system("debootstrap --verbose --variant=minbase --include ifupdown,iputils-ping,locales,libui-dialog-perl,dialog,netbase,net-tools,iproute,openssl,openssh-server,apt-utils,vim,emacs24-nox,ruby,wget,curl,aptitude,git,ca-certificates --arch amd64 #{options[:version]} tmprootfs http://ftp.be.debian.org/debian")
+  elsif options[:version] == "stable" then
+    system("debootstrap --verbose --variant=minbase --include ifupdown,iputils-ping,locales,libui-dialog-perl,dialog,netbase,net-tools,iproute,openssl,openssh-server,apt-utils,vim,emacs23-nox,ruby,wget,curl,aptitude,git,ca-certificates --arch amd64 #{options[:version]} tmprootfs http://ftp.be.debian.org/debian")
+  end
+  Dir.chdir("tmprootfs")
+  system("tar cvf #{options[:version]}.tar --exclude '#{options[:version]}.tar' .")
+  Dir.chdir("..")
+  File.rename("tmprootfs/#{options[:version]}.tar","#{options[:version]}.tar")
+  FileUtils.rm_rf("tmprootfs")
+end
+
+
+Dir.chdir('/var/lib/lxc')
+if not File.exists?(options[:hostname])
+  FileUtils.mkdir_p("/var/lib/lxc/"+options[:hostname]+"/rootfs")
+  Dir.chdir("/var/lib/lxc/"+options[:hostname]+"/rootfs")
+  system("tar xvf /srv/#{options[:version]}.tar")
+end
+
+pubkey = File.read("/root/.ssh/id_ecdsa.pub")
+
+chroot = Process.fork do
+  Dir.chdir("/")
+  Dir.chroot("/var/lib/lxc/"+options[:hostname]+"/rootfs")
+  filename = "/etc/inittab"
+
+  outdata = File.read(filename).gsub(/^([2-6]:23)/, '#\1')
+  outdata = outdata.gsub(/^(p[fno])/, '#\1')
+  
+  File.open(filename, 'w') do |out|
+    out << outdata
+  end  
+  
+  filename = "/etc/locale.gen"
+  outdata = File.read(filename).gsub(/^(# en_GB\.UTF-8)/, 'en_GB.UTF-8')
+  outdata = outdata.gsub(/^(# en_GB\.ISO-8859-15)/, 'en_GB.ISO-8859-15')
+  outdata = outdata.gsub(/^(# fr_FR\.UTF-8)/, 'fr_FR.UTF-8')
+  outdata = outdata.gsub(/^(# fr_FR@euro)/, 'fr_FR@euro')
+  
+  File.open(filename, 'w') do |out|
+    out << outdata
+  end  
+  
+  
+  system("/usr/sbin/locale-gen en_GB.UTF-8")
+  
+  outdata = "#{options[:hostname]}.#{options[:domain]}\n"
+  File.open("/etc/hostname", 'w') do |out|
+    out << outdata
+  end
+
+
+  outdata = <<EOF
+net.ipv6.conf.all.dad_transmits = 0
+net.ipv6.conf.all.accept_dad = 0
+net.ipv6.conf.lo.dad_transmits = 0
+net.ipv6.conf.lo.accept_dad = 0
+net.ipv6.conf.eth1.dad_transmits = 0
+net.ipv6.conf.eth1.accept_dad = 0
+EOF
+
+
+  File.open("/etc/sysctl.conf", 'w') do |out|
+    out << outdata
+  end
+
+  outdata = <<EOF
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+address #{options[:ip]}
+netmask #{options[:cidr]}
+gateway #{options[:gateway]}
+
+auto eth1
+iface eth1 inet6 manual
+  pre-up /bin/mount -o remount,rw /proc/sys && sysctl -p
+  up ip -6 a a #{options[:ip6]}/#{options[:cidr6]} dev eth1
+  up ip -6 r a #{options[:gateway6]} dev eth1
+  up ip -6 r a default via #{options[:gateway6]} dev eth1
+EOF
+  File.open("/etc/network/interfaces", 'w') do |out|
+    out << outdata
+ end
+  
+  
+  outdata = <<EOF
+nameserver #{options[:dns]}
+nameserver 8.8.8.8
+EOF
+  
+  File.open("/etc/resolv.conf", 'w') do |out|
+    out << outdata
+  end
+  
+
+  outdata = <<EOF
+127.0.0.1       localhost
+#{options[:ip]}             #{options[:hostname]}.#{options[:domain]} #{options[:hostname]}
+#{options[:ip6puppet]}             #{options[:puppet]}
+::1             localhost ip6-localhost ip6-loopback
+fe00::0         ip6-localnet
+ff00::0         ip6-mcastprefix
+ff02::1         ip6-allnodes
+ff02::2         ip6-allrouters
+EOF
+  
+  File.open("/etc/hosts", 'w') do |out|
+    out << outdata
+  end
+
+
+  if options[:version] == "testing" then
+    filename = "/etc/pam.d/sshd"
+    outdata = File.read(filename)
+    outdata.gsub!(/^session    required     pam_loginuid.so/, "# session    required     pam_loginuid.so")
+
+    File.open(filename, 'w') do |out|
+      out << outdata
+    end
+  end
+
+  Dir.mkdir("/root/.ssh") if not File.directory?("/root/.ssh")
+
+  filename = "/root/.ssh/authorized_keys"
+  File.open(filename, "w") do |out|
+    out << pubkey
+  end
+      
+
+  system("/usr/sbin/update-rc.d -f umountfs remove 2> /dev/null")
+  system("/usr/sbin/update-rc.d -f hwclock.sh remove 2> /dev/null")
+  system("/usr/sbin/update-rc.d -f hwclockfirst.sh remove 2> /dev/null")
+
+  outdata = <<EOF
+# puppetlabs
+deb  http://apt.puppetlabs.com #{options[:version]} main
+deb-src  http://apt.puppetlabs.com #{options[:version]} main 
+EOF
+  File.open("/etc/apt/sources.list.d/puppetlabs.list", 'w') do |out|
+    out << outdata
+  end
+  
+  outdata = <<EOF
+# puppetlabs-dep
+deb  http://apt.puppetlabs.com #{options[:version]} dependencies
+deb-src  http://apt.puppetlabs.com #{options[:version]} dependencies
+EOF
+  File.open("/etc/apt/sources.list.d/puppetlabs-dep.list", 'w') do |out|
+    out << outdata
+  end
+  
+  outdata = Net::HTTP.get('apt.puppetlabs.com', '/pubkey.gpg')
+  File.open("/tmp/pubkey.gpg", 'w') do |out|
+    out << outdata
+  end
+  system("apt-key add /tmp/pubkey.gpg")
+  system("apt-get update") if not File.file?("/etc/puppet/puppet.conf")
+  system("apt-get install -y puppet") if not File.file?("/etc/puppet/puppet.conf")
+
+  filename = "/etc/puppet/puppet.conf"
+  outdata = File.read(filename)
+  
+  outdata.gsub!(/\[master\]/, "server=#{options[:puppet]}\ncertname=#{options[:hostname]}.#{options[:domain]}\n[master]") if not outdata.include?("certname")
+  
+  File.open(filename, 'w') do |out|
+    out << outdata
+  end
+
+  outdata = <<EOF
+START=no
+DAEMON_OPTS=""
+export LANG=en_GB.UTF-8
+EOF
+  File.open("/etc/default/puppet", 'w') do |out|
+    out << outdata
+  end
+end
+
+Process.wait
+ram = `free`.split("\n")[1].split(" ")[1]
+cpu = Facter.value(:processorcount)
+outdata = <<EOF
+<domain type='lxc'>
+  <name>#{options[:hostname]}</name>
+  <memory unit='KiB'>#{ram}</memory>
+  <currentMemory unit='KiB'>#{ram}</currentMemory>
+  <vcpu placement='static'>#{cpu}</vcpu>
+  <cputune>
+    <shares>100</shares>
+  </cputune>
+  <resource>
+    <partition>/machine</partition>
+  </resource>
+  <os>
+    <type arch='x86_64'>exe</type>
+    <init>/sbin/init</init>
+  </os>
+  <clock offset='utc'/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <devices>
+    <emulator>/usr/lib/libvirt/libvirt_lxc</emulator>
+    <filesystem type='mount' accessmode='passthrough'>
+      <source dir='/var/lib/lxc/#{options[:hostname]}/rootfs'/>
+      <target dir='/'/>
+    </filesystem>
+
+    <interface type='bridge'>
+      <mac address='#{mac}'/>
+      <source bridge='br-int'/>
+    </interface>
+
+    <interface type='bridge'>
+      <mac address='#{mac6}'/>
+      <source bridge='br-ex'/>
+    </interface>
+EOF
+
+if options[:hostname] == "vpn"
+  outdata += <<EOF
+    <hostdev mode='capabilities' type='misc'>
+      <source>
+        <char>/dev/net/tun</char>
+      </source>    
+    </hostdev>
+
+    <filesystem type='mount' accessmode='passthrough'>
+      <source dir='/proc/sys/net'/>
+      <target dir='/proc/sys/net'/>
+    </filesystem>
+EOF
+end
+
+outdata += <<EOF
+    <console type='pty'>
+    </console>
+  </devices>
+</domain>
+EOF
+
+filename = "/var/lib/lxc/#{options[:hostname]}/config.xml"
+File.open(filename, 'w') do |out|
+  out << outdata
+end
+
+conn = Libvirt::open("lxc:///")
+conn.define_domain_xml(outdata) if not conn.list_defined_domains.include?(options[:hostname])

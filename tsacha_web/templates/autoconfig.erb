@@ -1,0 +1,8 @@
+<VirtualHost *:80>
+  ServerName autoconfig.tremoureux.fr
+  ServerAlias autoconfig.tremoureux.fr autoconfig.terres-creuses.fr autoconfig.glenn.pro
+  DocumentRoot /srv/web/autoconfig
+  <Directory /srv/web/autoconfig>
+    AllowOverride All
+  </Directory>
+</VirtualHost>

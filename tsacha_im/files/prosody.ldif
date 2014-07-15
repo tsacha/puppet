@@ -1,0 +1,6 @@
+dn: cn=prosody,dc=ldap,dc=s,dc=tremoureux,dc=fr
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: prosody
+description: Prosody User
+userPassword:
