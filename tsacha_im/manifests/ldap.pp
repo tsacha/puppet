@@ -8,14 +8,14 @@ class tsacha_im::ldap {
   file { "/etc/ldap/ldap.conf":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     content => template('tsacha_ldap/ldap.conf.erb'),
   }
 
   file { "/opt/prosody.ldif":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     source => "puppet:///modules/tsacha_im/prosody.ldif",
   }
 
@@ -35,7 +35,7 @@ class tsacha_im::ldap {
   file { "/etc/saslauthd.conf":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     content => template('tsacha_im/saslauthd.conf.erb'),
     notify => Service['saslauthd']
   }
@@ -43,7 +43,7 @@ class tsacha_im::ldap {
   file { "/etc/default/saslauthd":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     content => template('tsacha_im/default_saslauthd.erb'),
     notify => Service['saslauthd']
   }
@@ -51,14 +51,14 @@ class tsacha_im::ldap {
   file { "/etc/sasl":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     ensure => directory
   }
 
   file { "/etc/sasl/prosody.conf":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     content => template('tsacha_im/sasl_prosody.conf.erb'),
     require => File['/etc/sasl'],
     notify => Service['saslauthd']

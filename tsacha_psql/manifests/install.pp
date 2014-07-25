@@ -1,10 +1,17 @@
 class tsacha_psql::install {
 
+  $hosts = hiera_hash('hosts')
+  $domain_split = split($domain, '[.]')
+  $hypervisor = $domain_split[0]
+
+  $ip_address = $hosts[$hypervisor][$hostname]['ip']
+  $cidr = $hosts[$hypervisor]['physical']['cidr_private']
+  $gateway = $hosts[$hypervisor]['physical']['ip_private_address']
+  $ip6_address = $hosts[$hypervisor][$hostname]['ip6']
+  $cidr6 = $hosts[$hypervisor]['physical']['cidr6']
+  $gateway6 = $hosts[$hypervisor]['physical']['gateway6']
+
   $psql_password = hiera('psql::pwd')
-  $ip_address = hiera('network::ip_address')
-  $cidr = hiera('network::cidr')
-  $ip6_address = hiera('network::ip6_address')
-  $cidr6 = hiera('network::cidr6')
 
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
@@ -15,7 +22,7 @@ class tsacha_psql::install {
   file { "/etc/postgresql/9.1/main/pg_hba.conf":
     owner   => postgres,
     group   => postgres,
-    mode    => 640,
+    mode    => 0640,
     ensure  => present,
     notify => Service['postgresql'],
     require => Package['postgresql'],
@@ -26,7 +33,7 @@ class tsacha_psql::install {
   file { "/etc/postgresql/9.1/main/postgresql.conf":
     owner   => postgres,
     group   => postgres,
-    mode    => 644,
+    mode    => 0644,
     ensure  => present,
     notify => Service['postgresql'],
     require => Package['postgresql'],

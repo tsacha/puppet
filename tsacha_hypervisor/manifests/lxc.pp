@@ -8,6 +8,10 @@ class tsacha_hypervisor::lxc {
   package { "libvirt-bin":
     ensure => installed
   }
+
+  package { 'cgroupfs-mount':
+    ensure => installed
+  }
  
   service { "libvirt-bin":
     ensure => running
@@ -16,7 +20,7 @@ class tsacha_hypervisor::lxc {
   file { "/etc/libvirt/libvirtd.conf":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     ensure => present,
     content => template('tsacha_hypervisor/libvirtd.conf.erb'),
     require => Package["libvirt-bin"],
@@ -26,7 +30,7 @@ class tsacha_hypervisor::lxc {
   file { "/etc/libvirt/libvirt.conf":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     ensure => present,
     content => template('tsacha_hypervisor/libvirt.conf.erb'),
     require => Package["libvirt-bin"],
@@ -58,7 +62,7 @@ class tsacha_hypervisor::lxc {
   file { "/srv/generate_container.rb":
     owner => root,
     group => root,
-    mode => 755,
+    mode => 0755,
     ensure => present,
     content => template('tsacha_hypervisor/generate_container.rb.erb')
   }
@@ -66,7 +70,7 @@ class tsacha_hypervisor::lxc {
   file { "/etc/default/grub":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     ensure => present,
     content => template('tsacha_hypervisor/grub.default.erb'),
   } ~>

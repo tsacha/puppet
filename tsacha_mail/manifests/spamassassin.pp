@@ -26,7 +26,7 @@ class tsacha_mail::spamassassin {
   file { '/etc/spamassassin/local.cf':
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     ensure => present,
     content => template('tsacha_mail/spamassassin/local.cf.erb'),
     notify => Service['spamassassin']
@@ -35,7 +35,7 @@ class tsacha_mail::spamassassin {
   file { '/etc/cron.daily/spam-imap':
     owner => root,
     group => root,
-    mode => 755,
+    mode => 0755,
     ensure => present,
     content => template('tsacha_mail/spamassassin/spam-imap.erb')
   }

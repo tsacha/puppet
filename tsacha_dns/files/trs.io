@@ -1,6 +1,6 @@
 $TTL 180
 trs.io.                        IN SOA    trs.io. sacha.tremoureux.fr. (
-                                   2014070701 ; serial
+                                   2014071701 ; serial
                                    86400      ; refresh (1 day)
                                    3600       ; retry (1 hour)
                                    3600000    ; expire (5 weeks 6 days 16 hours)
@@ -104,6 +104,9 @@ tc.jool                        AAAA                   2001:41d0:2:a3be:1::102
 sacha.jool                     A                      188.165.216.190
 sacha.jool                     AAAA                   2001:41d0:2:a3be:1::103
 
+canopsis.jool                  A                      188.165.216.190
+canopsis.jool                  AAAA                   2001:41d0:2:a3be:1::201
+
 
 ; FRONT DNS
 dns                            CNAME                  dns.duna
@@ -115,3 +118,4 @@ ldap                           CNAME                  ldap.duna
 im                             CNAME                  im.duna
 vpn                            CNAME                  vpn.duna
 mumble                         CNAME                  mumble.duna
+canopsis                       CNAME                  canopsis.jool

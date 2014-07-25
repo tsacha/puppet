@@ -7,19 +7,52 @@ COMMIT
 :INPUT ACCEPT
 :OUTPUT ACCEPT
 :POSTROUTING ACCEPT
+<% if @dns_ip %>
+# DNS
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 53 -j DNAT --to-destination <%= @dns_ip %>:53
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p udp -m udp --dport 53 -j DNAT --to-destination <%= @dns_ip %>:53
+<% end %>
+<% if @web_ip %>
+# WEB
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 80 -j DNAT --to-destination <%= @web_ip %>:80
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 443 -j DNAT --to-destination <%= @web_ip %>:443
+<% end %>
+<% if @mail_ip %>
+# MAIL
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 993 -j DNAT --to-destination <%= @mail_ip %>:993
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 25 -j DNAT --to-destination <%= @mail_ip %>:25
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 587 -j DNAT --to-destination <%= @mail_ip %>:587
+<% end %>
+<% if @ldap_ip %>
+# LDAP
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 636 -j DNAT --to-destination <%= @ldap_ip %>:636
+<% end %>
+<% if @psql_ip %>
+# POSTGRESQL
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 5432 -j DNAT --to-destination <%= @psql_ip %>:5432
+<% end %>
+<% if @im_ip %>
+# IM
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 5222 -j DNAT --to-destination <%= @im_ip %>:5222
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 5224 -j DNAT --to-destination <%= @im_ip %>:5224
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 5269 -j DNAT --to-destination <%= @im_ip %>:5269
+<% end %>
+<% if @glenn_ip %>
+# GLENN
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 3000 -j DNAT --to-destination <%= @glenn_ip %>:3000
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 64738 -j DNAT --to-destination <%= @glenn_ip %>:64738
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p udp -m udp --dport 64738 -j DNAT --to-destination <%= @glenn_ip %>:64738
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 22<%= @glenn_ip.split(".")[3] %> -j DNAT --to-destination <%= @glenn_ip %>:22
+<% end %>
+<% if @canopsis_ip %>
+# CANOPSIS
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 8082 -j DNAT --to-destination <%= @canopsis_ip %>:8082
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 8085 -j DNAT --to-destination <%= @canopsis_ip %>:8085
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 5672 -j DNAT --to-destination <%= @canopsis_ip %>:5672
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 5673 -j DNAT --to-destination <%= @canopsis_ip %>:5673
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 15672 -j DNAT --to-destination <%= @canopsis_ip %>:15672
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 55672 -j DNAT --to-destination <%= @canopsis_ip %>:55672
+<% end %>
 -A POSTROUTING -s <%= @ip_private_range %>/<%= @cidr_private %> -j MASQUERADE
 COMMIT
 *mangle

@@ -21,7 +21,7 @@ class tsacha_dns::install {
     file { $bindfolders:
       owner   => root,
       group   => bind,
-      mode    => 750,
+      mode    => 0750,
       ensure  => directory,
       require => [Package['bind9'],Exec['kill-bind']],
       notify  => Service['bind9']
@@ -30,7 +30,7 @@ class tsacha_dns::install {
     file { ["/var/lib/named/var/log"]:
       owner   => bind,
       group   => bind,
-      mode    => 750,
+      mode    => 0750,
       ensure  => directory,
       notify => Service['bind9'],
       require => File[$bindfolders]
@@ -39,7 +39,7 @@ class tsacha_dns::install {
     file { ["/var/lib/named/var/cache/bind"]:
       owner   => bind,
       group   => bind,
-      mode    => 750,
+      mode    => 0750,
       ensure  => directory,
       notify => Service['bind9'],
       require => File[$bindfolders]
@@ -49,7 +49,7 @@ class tsacha_dns::install {
       ensure => present,
       owner => root,
       group => bind,
-      mode => 640,
+      mode => 0640,
       notify => Service['bind9'],
       require => File[$bindfolders]
     }
@@ -114,7 +114,7 @@ class tsacha_dns::install {
     file { "/etc/init.d/bind9":
       owner   => root,
       group   => root,
-      mode    => 755,
+      mode    => 0755,
       content => template('tsacha_dns/bind_init.erb'),
       notify => Service['bind9']
     }
@@ -123,7 +123,7 @@ class tsacha_dns::install {
     file { "/etc/default/bind9":
       owner => root,
       group => root,
-      mode => 644,
+      mode => 0644,
       content => template('tsacha_dns/bind_default.erb'),
       notify => Service['bind9']
     }

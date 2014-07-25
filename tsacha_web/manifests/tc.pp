@@ -6,7 +6,7 @@ class tsacha_web::tc {
       ensure => present,
       owner => root,
       group => root,
-      mode => 640,
+      mode => 0640,
       notify => File['/etc/apache2/sites-enabled/tc.conf'],
       content => template('tsacha_web/tc.erb'),
     }
@@ -21,6 +21,6 @@ class tsacha_web::tc {
       ensure => directory,
       owner => www-data,
       group => www-data,
-      mode => 775
+      mode => 0775
     }
 }

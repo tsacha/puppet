@@ -15,7 +15,7 @@ class tsacha_containers::network {
   file { "/etc/network/interfaces":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     ensure => present,
     content => template('tsacha_containers/interfaces.erb')
   }

@@ -6,12 +6,12 @@ class tsacha_dns::tremoureux {
     ensure => present,
     owner => root,
     group => bind,
-    mode => 640,
+    mode => 0640,
    }
 
   file { "/var/lib/named/etc/bind/tremoureux.fr.ksk.private":
     source => "puppet:///modules/tsacha_private/dns/tremoureux.fr.ksk.private",
-    mode => 400
+    mode => 0400
   } ->
 
   file { "/var/lib/named/etc/bind/tremoureux.fr.ksk.key":
@@ -20,7 +20,7 @@ class tsacha_dns::tremoureux {
 
   file { "/var/lib/named/etc/bind/tremoureux.fr.zsk.private":
     source => "puppet:///modules/tsacha_private/dns/tremoureux.fr.zsk.private",
-    mode => 400
+    mode => 0400
   } ->
 
   file { "/var/lib/named/etc/bind/tremoureux.fr.zsk.key":

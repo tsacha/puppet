@@ -12,14 +12,14 @@ class tsacha_mail::ldap {
   file { "/etc/ldap/ldap.conf":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     content => template('tsacha_ldap/ldap.conf.erb'),
   }
 
   file { "/opt/dovecot.ldif":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     source => "puppet:///modules/tsacha_mail/dovecot/dovecot.ldif",
   }
 
@@ -39,7 +39,7 @@ class tsacha_mail::ldap {
   file { "/opt/postfix.ldif":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     source => "puppet:///modules/tsacha_mail/postfix/postfix.ldif",
   }
 
@@ -60,7 +60,7 @@ class tsacha_mail::ldap {
   file { "/opt/sacha.ldif":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     source => "puppet:///modules/tsacha_private/mail/sacha.ldif",
   }
 
@@ -74,7 +74,7 @@ class tsacha_mail::ldap {
   file { "/opt/glenn.ldif":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     source => "puppet:///modules/tsacha_private/mail/glenn.ldif",
   }
 
@@ -88,7 +88,7 @@ class tsacha_mail::ldap {
   file { "/opt/didier.ldif":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     source => "puppet:///modules/tsacha_private/mail/didier.ldif",
   }
 
@@ -102,7 +102,7 @@ class tsacha_mail::ldap {
   file { "/opt/pascale.ldif":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     source => "puppet:///modules/tsacha_private/mail/pascale.ldif",
   }
 
@@ -116,7 +116,7 @@ class tsacha_mail::ldap {
   file { "/opt/ham.ldif":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     source => "puppet:///modules/tsacha_private/mail/ham.ldif",
   }
 

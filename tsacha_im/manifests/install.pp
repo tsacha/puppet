@@ -8,7 +8,7 @@ class tsacha_im::install {
     ensure => present,
     owner => root,
     group => root,
-    mode => 755,
+    mode => 0755,
     notify => Service['prosody'],
     content => template('tsacha_im/prosody.cfg.lua.erb'),
   }
@@ -17,7 +17,7 @@ class tsacha_im::install {
     ensure => present,
     owner => root,
     group => root,
-    mode => 755,
+    mode => 0755,
     source => "puppet:///modules/tsacha_im/prosody-modules.tar",
   } ->
   exec { "untar-modules":

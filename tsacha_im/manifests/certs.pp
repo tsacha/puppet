@@ -3,14 +3,14 @@ class tsacha_im::certs {
     ensure => directory,
     owner => prosody,
     group => prosody,
-    mode => 550,
+    mode => 0550,
   }
 
   file { "/srv/certs/ldap.pem":
     ensure => present,
     owner => prosody,
     group => prosody,
-    mode => 444,
+    mode => 0444,
     require => File['/srv/certs'],
     source => "puppet:///modules/tsacha_private/global/gandi.pem",
   }
@@ -20,7 +20,7 @@ class tsacha_im::certs {
     ensure => present,
     owner => prosody,
     group => prosody,
-    mode => 444,
+    mode => 0444,
     require => File['/srv/certs'],
     source => "puppet:///modules/tsacha_private/global/gandi.pem",
   }
@@ -30,7 +30,7 @@ class tsacha_im::certs {
     ensure => present,
     owner => prosody,
     group => prosody,
-    mode => 440,
+    mode => 0440,
     require => File['/srv/certs'],
     source => "puppet:///modules/tsacha_private/global/chain.tremoureux.fr.crt",
   }
@@ -40,7 +40,7 @@ class tsacha_im::certs {
     ensure => present,
     owner => prosody,
     group => prosody,
-    mode => 400,
+    mode => 0400,
     require => File['/srv/certs'],
     source => "puppet:///modules/tsacha_private/global/tremoureux.fr.key",
   }
@@ -49,7 +49,7 @@ class tsacha_im::certs {
     ensure => present,
     owner => prosody,
     group => prosody,
-    mode => 440,
+    mode => 0440,
     require => File['/srv/certs'],
     source => "puppet:///modules/tsacha_private/global/chain.s.tremoureux.fr.crt",
   }
@@ -59,7 +59,7 @@ class tsacha_im::certs {
     ensure => present,
     owner => prosody,
     group => prosody,
-    mode => 400,
+    mode => 0400,
     require => File['/srv/certs'],
     source => "puppet:///modules/tsacha_private/global/s.tremoureux.fr.key",
   }
@@ -68,7 +68,7 @@ class tsacha_im::certs {
     ensure => present,
     owner => prosody,
     group => prosody,
-    mode => 440,
+    mode => 0440,
     require => File['/srv/certs'],
     source => "puppet:///modules/tsacha_private/global/chain.glenn.pro.crt",
   }
@@ -78,7 +78,7 @@ class tsacha_im::certs {
     ensure => present,
     owner => prosody,
     group => prosody,
-    mode => 400,
+    mode => 0400,
     require => File['/srv/certs'],
     source => "puppet:///modules/tsacha_private/global/glenn.pro.key",
   }

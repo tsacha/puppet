@@ -28,7 +28,7 @@ class tsacha_lb::install {
     ensure => present,
     owner => root,
     group => root,
-    mode => 640,
+    mode => 0640,
     notify => Service['apache2'],
     content => template('tsacha_lb/ports.conf.erb'),
   }

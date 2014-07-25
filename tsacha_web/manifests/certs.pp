@@ -6,14 +6,14 @@ class tsacha_web::certs {
       ensure => directory,
       owner => www-data,
       group => www-data,
-      mode => 500,
+      mode => 0500,
     }
 
     file { "/srv/certs/s.tremoureux.fr.crt":
       ensure => present,
       owner => www-data,
       group => www-data,
-      mode => 400,
+      mode => 0400,
       require => File['/srv/certs'],
       source => "puppet:///modules/tsacha_private/global/s.tremoureux.fr.crt",
     }    
@@ -22,7 +22,7 @@ class tsacha_web::certs {
       ensure => present,
       owner => www-data,
       group => www-data,
-      mode => 400,
+      mode => 0400,
       require => File['/srv/certs'],
       source => "puppet:///modules/tsacha_private/global/s.tremoureux.fr.key",
     }    
@@ -31,7 +31,7 @@ class tsacha_web::certs {
       ensure => present,
       owner => www-data,
       group => www-data,
-      mode => 400,
+      mode => 0400,
       require => File['/srv/certs'],
       source => "puppet:///modules/tsacha_private/global/tremoureux.fr.crt",
     }    
@@ -40,7 +40,7 @@ class tsacha_web::certs {
       ensure => present,
       owner => www-data,
       group => www-data,
-      mode => 400,
+      mode => 0400,
       require => File['/srv/certs'],
       source => "puppet:///modules/tsacha_private/global/tremoureux.fr.key",
     }    
@@ -49,7 +49,7 @@ class tsacha_web::certs {
       ensure => present,
       owner => www-data,
       group => www-data,
-      mode => 400,
+      mode => 0400,
       require => File['/srv/certs'],
       source => "puppet:///modules/tsacha_private/global/gandi.pem",
     }    
@@ -58,7 +58,7 @@ class tsacha_web::certs {
       ensure => present,
       owner => www-data,
       group => www-data,
-      mode => 400,
+      mode => 0400,
       require => File['/srv/certs'],
       source => "puppet:///modules/tsacha_private/global/glenn.pro.crt",
     }    
@@ -67,7 +67,7 @@ class tsacha_web::certs {
       ensure => present,
       owner => www-data,
       group => www-data,
-      mode => 400,
+      mode => 0400,
       require => File['/srv/certs'],
       source => "puppet:///modules/tsacha_private/global/glenn.pro.key",
     }    

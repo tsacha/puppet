@@ -16,7 +16,7 @@ class tsacha_web::install {
     ensure => directory,
     owner => www-data, 
     group => www-data,
-    mode => 775
+    mode => 0775
   }
 
   file { '/etc/apache2/sites-available/000-default.conf':
@@ -83,7 +83,7 @@ class tsacha_web::install {
     ensure => present,
     owner => root,
     group => root,
-    mode => 640,
+    mode => 0640,
     require => Package['apache2'],
     notify => Service['apache2'],
     content => template('tsacha_web/apache2.conf.erb'),
@@ -93,7 +93,7 @@ class tsacha_web::install {
     ensure => present,
     owner => root,
     group => root,
-    mode => 640,
+    mode => 0640,
     require => Package['apache2'],
     notify => Service['apache2'],
     content => template('tsacha_web/ports.conf.erb'),

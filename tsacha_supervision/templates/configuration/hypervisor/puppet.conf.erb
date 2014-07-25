@@ -1,9 +1,0 @@
-object Service "puppet" {
-  import "generic-service"
-
-  host_name = "<%= @hostname %>"
-  check_command = "by_ssh"
-  vars.by_ssh_command = "/etc/init.d/puppet status"
-  vars.by_ssh_options = "StrictHostKeyChecking=no"
-  vars.sla = "24x7"
-}

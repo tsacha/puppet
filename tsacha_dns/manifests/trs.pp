@@ -6,7 +6,7 @@ class tsacha_dns::trs {
       ensure => present,
       owner => root,
       group => bind,
-      mode => 640,
+      mode => 0640,
      }
 
     file { "/var/lib/named/etc/bind/db.trs.io":

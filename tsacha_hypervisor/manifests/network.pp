@@ -17,7 +17,7 @@ class tsacha_hypervisor::network {
   file { "/etc/sysctl.conf":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     ensure => present,
     content => template('tsacha_hypervisor/sysctl.conf.erb'),
     notify => Exec['apply-sysctl']
@@ -98,11 +98,41 @@ class tsacha_hypervisor::network {
   file { "/etc/network/interfaces":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     ensure => present,
     content => template('tsacha_hypervisor/interfaces.erb'),
   }
 
+  $hosts.each |$key,$value| {
+    if($key != $hostname) {
+      $id_local = $hosts[$hostname]['physical']['idhypervisor']
+      $id_remote = $hosts[$key]['physical']['idhypervisor']
+      if($id_local < $id_remote) {
+        $subnet = "${id_local}${id_remote}"
+      }
+      else {
+        $subnet = "${id_remote}${id_local}"
+      }
+
+
+      exec { "create-tunnel-$key":
+        command =>  "ip tunnel add $hostname-$key mode gre remote ${hosts[$key]['physical']['ip']} local ${hosts[$hostname]['physical']['ip']} ttl 255",
+        unless =>  "ip tunnel | grep $hostname-$key"
+      } ->
+      exec { "up-tunnel-$key":
+        command => "ip link set $hostname-$key up",
+        unless => "ip link show $hostname-$key | grep UP"
+      } ->
+      exec { "addr-tunnel-$key":
+        command => "ip address add 10.40.$subnet.${hosts[$hostname]['physical']['idhypervisor']}/24 dev $hostname-$key",
+        unless => "ip address show $hostname-$key | grep 10.40.$subnet.${hosts[$hostname]['physical']['idhypervisor']}/24"
+      } ->
+      exec { "routing-$key":
+        command => "ip route add ${hosts[$key]['physical']['ip_private_range']}/${hosts[$key]['physical']['cidr_private']} via 10.40.$subnet.${hosts[$key]['physical']['idhypervisor']}",
+        unless => "ip route show | grep \"${hosts[$key]['physical']['ip_private_range']}/${hosts[$key]['physical']['cidr_private']} via 10.40.$subnet.${hosts[$key]['physical']['idhypervisor']}\""
+       
+      }
+    }
+  }
+
 }
-
-

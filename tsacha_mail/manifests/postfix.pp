@@ -7,7 +7,7 @@ class tsacha_mail::postfix {
   File {
     owner => root,
     group => postfix,
-    mode => 644,
+    mode => 0644,
     ensure => present,
     require => Package['postfix'],
     notify => Service['postfix']
@@ -44,7 +44,7 @@ class tsacha_mail::postfix {
   }
 
   file { "/etc/postfix/ldap-virtual.cf":
-    mode => 640,
+    mode => 0640,
     content => template('tsacha_mail/postfix/ldap-virtual.cf.erb'),
   }
 

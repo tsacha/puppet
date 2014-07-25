@@ -21,7 +21,7 @@ class tsacha_ldap::install {
     ensure => directory,
     owner => openldap,
     group => openldap,
-    mode => 500,
+    mode => 0500,
     require => Package['slapd']
   }
 
@@ -29,7 +29,7 @@ class tsacha_ldap::install {
     ensure => present,
     owner => openldap,
     group => openldap,
-    mode => 400,
+    mode => 0400,
     require => File['/srv/certs'],
     source => "puppet:///modules/tsacha_private/global/s.tremoureux.fr.crt",
     notify => Service['slapd']
@@ -39,7 +39,7 @@ class tsacha_ldap::install {
     ensure => present,
     owner => openldap,
     group => openldap,
-    mode => 400,
+    mode => 0400,
     require => File['/srv/certs'],
     source => "puppet:///modules/tsacha_private/global/s.tremoureux.fr.key",
     notify => Service['slapd']
@@ -49,7 +49,7 @@ class tsacha_ldap::install {
     ensure => present,
     owner => openldap,
     group => openldap,
-    mode => 400,
+    mode => 0400,
     require => File['/srv/certs'],
     source => "puppet:///modules/tsacha_private/global/gandi.pem",
     notify => Service['slapd']
@@ -58,21 +58,21 @@ class tsacha_ldap::install {
   file { "/opt/config.ldif":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     content => template('tsacha_ldap/config.ldif.erb'),
   }
 
   file { "/opt/create-db.sh":
     owner => root,
     group => root,
-    mode => 755,
+    mode => 0755,
     content => template('tsacha_ldap/create-db.sh.erb'),
   }
 
   file { "/etc/default/slapd":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     content => template('tsacha_ldap/slapd.default.erb'),
     notify => Service['slapd']
   }
@@ -80,7 +80,7 @@ class tsacha_ldap::install {
   file { "/etc/ldap/ldap.conf":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     content => template('tsacha_ldap/ldap.conf.erb'),
     notify => Service['slapd']
   }
@@ -88,14 +88,14 @@ class tsacha_ldap::install {
   file { "/opt/db.ldif":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     content => template('tsacha_ldap/db.ldif.erb'),
   }
 
   file { "/opt/extend.ldif":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     content => template('tsacha_ldap/extend.ldif.erb'),
   }
 
@@ -103,7 +103,7 @@ class tsacha_ldap::install {
   file { "/opt/pass-db.ldif":
     owner => root,
     group => root,
-    mode => 644,
+    mode => 0644,
     content => template('tsacha_ldap/pass-db.ldif.erb'),
   }
 

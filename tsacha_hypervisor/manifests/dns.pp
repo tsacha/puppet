@@ -45,14 +45,14 @@ class tsacha_hypervisor::dns {
     type => c,
     major => 1,
     minor => 3,
-    mode => 0666,
+    mode => 00666,
   } ->
 
   device_node { "/var/lib/lxc/dns/rootfs/var/lib/named/dev/random":
     type => c,
     major => 1,
     minor => 8,
-    mode => 0666
+    mode => 00666
   } ->
 
   exec { "start-dns-container":

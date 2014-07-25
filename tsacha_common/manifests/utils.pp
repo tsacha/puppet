@@ -14,11 +14,28 @@ class tsacha_common::utils {
     ensure => installed
   }
 
+
+  package { 'sudo':
+    ensure => installed
+  } ->
+
+  file { '/etc/sudoers.d/sup':
+    owner => root,
+    group => root,
+    mode => 0400,
+    ensure => present,
+    content => template('tsacha_common/sudo.sup.erb'),    
+  }
+
   package { 'apt-file':
     ensure => installed
   }
 
   package { 'build-essential':
+    ensure => installed
+  }
+
+  package { 'git-core':
     ensure => installed
   }
 

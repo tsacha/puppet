@@ -10,7 +10,7 @@ class tsacha_web::webmail {
     ensure => present,
     owner => root,
     group => root,
-    mode => 640,
+    mode => 0640,
     notify => File['/etc/apache2/sites-enabled/webmail.conf'],
     content => template('tsacha_web/webmail.erb'),
   }
@@ -19,14 +19,14 @@ class tsacha_web::webmail {
     ensure => directory,
     owner => www-data,
     group => www-data,
-    mode => 775,
+    mode => 0775,
   } ->
 
   file { "/srv/web/webmail/temp":
     ensure => directory,
     owner => www-data,
     group => www-data,
-    mode => 775,
+    mode => 0775,
   } ->
 
   file { "/etc/apache2/sites-enabled/webmail.conf":
@@ -41,7 +41,7 @@ class tsacha_web::webmail {
     source => "puppet:///modules/tsacha_web/roundcube.tar.gz",
     owner => www-data,
     group => www-data,
-    mode => 644,
+    mode => 0644,
   } ->
 
 
@@ -55,7 +55,7 @@ class tsacha_web::webmail {
     ensure => present,
     owner => www-data,
     group => www-data,
-    mode => 660,
+    mode => 0660,
     content => template('tsacha_web/roundcube.conf.erb'),
   } ->
 
@@ -63,7 +63,7 @@ class tsacha_web::webmail {
     ensure => present,
     owner => www-data,
     group => www-data,
-    mode => 660,
+    mode => 0660,
     content => template('tsacha_web/managesieve.conf.erb'),
   } ->
 
@@ -96,7 +96,7 @@ class tsacha_web::webmail {
     source => "puppet:///modules/tsacha_web/mime.types",
     owner => www-data,
     group => www-data,
-    mode => 644,
+    mode => 0644,
   }
 
 }
