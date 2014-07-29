@@ -1,3 +1,0 @@
-<% @pubkeys.each do |val| -%>
-Some stuff with <%= val %>
-<% end -%>
