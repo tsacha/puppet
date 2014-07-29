@@ -1,0 +1,24 @@
+<%-
+revip = IPAddr.new(host_address6).ip6_arpa
+x = DateTime.now
+serial = x.strftime("%Y%m%d")+(((x.strftime("%H").to_i*3600+x.strftime("%M").to_i*60+x.strftime("%S").to_i)/864).to_s.rjust(2,'0'))
+-%>
+$TTL 864
+<%= revip %>.                                   IN SOA    tremoureux.fr. sacha.tremoureux.fr. (
+                                                                                <%= serial %> ; serial
+                                                                                86400      ; refresh (1 day)
+                                                                                3600       ; retry (1 hour)
+                                                                                3600000    ; expire (5 weeks 6 days 16 hours)
+                                                                                300        ; minimum (5 minutes)
+                                                                            )
+                                                                            
+                                                                            NS                     dns.duna.trs.io.
+                                                                            NS                     dns.jool.trs.io.
+<%- 
+hosts[key].each do |hostname,conf|
+lrevip = IPAddr.new(conf['ip6']).ip6_arpa
+-%>
+<%= lrevip %>. PTR <%= conf['fqdn'] %>.
+<%-
+end
+-%>

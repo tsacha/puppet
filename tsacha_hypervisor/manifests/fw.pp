@@ -21,6 +21,7 @@ class tsacha_hypervisor::fw {
     $psql_ip = $hosts['duna']['psql']['ip']
     $im_ip = $hosts['duna']['im']['ip']
     $web_ip = $hosts['duna']['web']['ip']
+    $mumble_ip = $hosts['duna']['mumble']['ip']
     $glenn_ip = $hosts['duna']['glenn']['ip']
     $canopsis_ip = $hosts['jool']['canopsis']['ip']
   }

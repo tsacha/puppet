@@ -1,6 +1,6 @@
 $TTL 180
 trs.io.                        IN SOA    trs.io. sacha.tremoureux.fr. (
-                                   2014071701 ; serial
+                                   2014072701     ; serial
                                    86400      ; refresh (1 day)
                                    3600       ; retry (1 hour)
                                    3600000    ; expire (5 weeks 6 days 16 hours)
@@ -57,6 +57,9 @@ vpn.duna                       AAAA                   2001:41d0:2:9566:1::8
 		               
 mumble.duna                    A                      188.165.204.102
 mumble.duna                    AAAA                   2001:41d0:2:9566:1::9
+
+mariadb.duna                   A                      188.165.204.102
+mariadb.duna                   AAAA                   2001:41d0:2:9566:1::10
 		               
 glenn.duna                     A                      188.165.204.102
 glenn.duna                     AAAA                   2001:41d0:2:9566:1::101

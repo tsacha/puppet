@@ -13,14 +13,6 @@ class tsacha_glenn::install {
   package { 'php5-curl':
     ensure => installed
   }
-
-  package { 'ruby-dev':
-    ensure => installed
-  }
-
-  package { 'libsqlite3-dev':
-    ensure => installed
-  }
   
   package { 'imagemagick':
     ensure => installed

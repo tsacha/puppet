@@ -1,41 +1,32 @@
 class tsacha_dns::reverse {
 
-    Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
+  Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
-    File {
-      ensure => present,
-      owner => root,
-      group => bind,
-      mode => 0640,
-     }
+  File {
+    ensure => present,
+    owner => root,
+    group => bind,
+    mode => 0640,
+   }
 
-    file { "/var/lib/named/etc/bind/db.bergen.reverse.v4":
-      source => "puppet:///modules/tsacha_dns/bergen.reverse.v4",
-      notify => Service['bind9']
-    }
-    file { "/var/lib/named/etc/bind/db.bergen.fallback.reverse.v4":
-      source => "puppet:///modules/tsacha_dns/bergen.fallback.reverse.v4",
-      notify => Service['bind9']
-    }
-    file { "/var/lib/named/etc/bind/db.oslo.reverse.v4":
-      source => "puppet:///modules/tsacha_dns/oslo.reverse.v4",
-      notify => Service['bind9']
-    }
-    file { "/var/lib/named/etc/bind/db.tromso.reverse.v4":
-      source => "puppet:///modules/tsacha_dns/tromso.reverse.v4",
-      notify => Service['bind9']
-    }
-    file { "/var/lib/named/etc/bind/db.bergen.reverse.v6":
-      source => "puppet:///modules/tsacha_dns/bergen.reverse.v6",
-      notify => Service['bind9']
-    }
-    file { "/var/lib/named/etc/bind/db.oslo.reverse.v6":
-      source => "puppet:///modules/tsacha_dns/oslo.reverse.v6",
-      notify => Service['bind9']
-    }
-    file { "/var/lib/named/etc/bind/db.tromso.reverse.v6":
-      source => "puppet:///modules/tsacha_dns/tromso.reverse.v6",
-      notify => Service['bind9']
-    }
+  $hosts = hiera_hash('hosts')
+  $hosts.each |$key,$value| {
+    $value.each |$hostname,$conf| {
+      $host_name = $conf['fqdn']
+      $host_address = $conf['ip']
+      $host_address6 = $conf['ip6']
+      if($hostname == "physical") {
+        file { "/var/lib/named/etc/bind/db.$key.reverse.v6":
+          content => template('tsacha_dns/reverse6.erb'),
+          notify => Service['bind9']
+        }
 
+        file { "/var/lib/named/etc/bind/db.$key.reverse.v4":
+          content => template('tsacha_dns/reverse4.erb'),
+          notify => Service['bind9']
+        }
+      }
+    }
+  }
 }
+

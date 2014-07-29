@@ -24,7 +24,7 @@ class tsacha_hypervisor::glenn {
   Exec { path => [ "/srv", "/opt/libvirt/bin", "/opt/libvirt/sbin", "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
   exec { "generate-glenn-container":
-    command => "ruby /srv/generate_container.rb --fqdn $glenn_fqdn --ip $glenn_ip --cidr $glenn_cidr --gateway $glenn_gateway --ip6 $glenn_ip6 --cidr6 $glenn_cidr6 --gateway6 $glenn_gateway6 --dns 8.8.8.8 --puppet $glenn_puppet --ippuppet $glenn_ip_puppet --ip6puppet $glenn_ip6_puppet --idhypervisor $idhypervisor --version stable",
+    command => "ruby /srv/generate_container.rb --fqdn $glenn_fqdn --ip $glenn_ip --cidr $glenn_cidr --gateway $glenn_gateway --ip6 $glenn_ip6 --cidr6 $glenn_cidr6 --gateway6 $glenn_gateway6 --dns 8.8.8.8 --puppet $glenn_puppet --ippuppet $glenn_ip_puppet --ip6puppet $glenn_ip6_puppet --idhypervisor $idhypervisor --version testing",
     unless => "virsh list --all | grep glenn",
     timeout => 500
   } ->

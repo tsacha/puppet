@@ -14,6 +14,10 @@ class tsacha_common::utils {
     ensure => installed
   }
 
+  package { 'w3m':
+    ensure => installed
+  }
+
 
   package { 'sudo':
     ensure => installed
@@ -32,6 +36,10 @@ class tsacha_common::utils {
   }
 
   package { 'build-essential':
+    ensure => installed
+  }
+
+  package { 'libssl-dev':
     ensure => installed
   }
 

@@ -4,6 +4,11 @@ class tsacha_psql::install {
   $domain_split = split($domain, '[.]')
   $hypervisor = $domain_split[0]
 
+  $ip_sup_address = $hosts['kerbin']['physical']['ip_private_address']
+  $cidr_sup = $hosts['kerbin']['physical']['cidr_private']
+  $ip6_sup_address = $hosts['kerbin']['physical']['ip6']
+  $cidr6_sup = $hosts['kerbin']['physical']['cidr6']
+
   $ip_address = $hosts[$hypervisor][$hostname]['ip']
   $cidr = $hosts[$hypervisor]['physical']['cidr_private']
   $gateway = $hosts[$hypervisor]['physical']['ip_private_address']

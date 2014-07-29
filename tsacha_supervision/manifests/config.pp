@@ -109,7 +109,8 @@ class tsacha_supervision::config {
   $hosts.each |$key,$value| {
     $value.each |$hostname,$conf| {
       $host_name = $conf['fqdn']
-      $host_address = $conf['ip6']
+      $host_address = $conf['ip']
+      $host_address6 = $conf['ip6']
       $type = $hostname
 
       file { "/etc/naemon/conf.d/${conf['fqdn']}.cfg":

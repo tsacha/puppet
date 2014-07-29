@@ -1,0 +1,39 @@
+<%-
+x = DateTime.now
+serial = x.strftime("%Y%m%d")+(((x.strftime("%H").to_i*3600+x.strftime("%M").to_i*60+x.strftime("%S").to_i)/864).to_s.rjust(2,'0'))
+-%>
+
+$TTL 864 
+trs.io.                        IN SOA    trs.io. sacha.tremoureux.fr. (
+                                   <%= serial %>     ; serial
+                                   86400      ; refresh (1 day)
+                                   3600       ; retry (1 hour)
+                                   3600000    ; expire (5 weeks 6 days 16 hours)
+                                   300        ; minimum (5 minutes)
+                               )
+		               
+                               NS                     dns.duna.trs.io.
+                               NS                     dns.jool.trs.io.
+		               
+                               A                      188.165.204.102
+                               AAAA                   2001:41d0:2:9566:1::3
+		               
+
+<%- 
+hosts.each do |key,value|
+  value.each do |hostname,conf|
+%>
+<%= conf['fqdn'] %>. A <%= conf['ip'] %>
+<%= conf['fqdn'] %>. AAAA <%= conf['ip6'] %>
+<%-
+  end
+end
+-%>
+
+<%-
+fronts.each do |key,value|
+-%>
+<%= key %> CNAME <%= key %>.<%= value %>.trs.io.
+<%-
+end
+-%>

@@ -37,11 +37,17 @@ COMMIT
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 5224 -j DNAT --to-destination <%= @im_ip %>:5224
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 5269 -j DNAT --to-destination <%= @im_ip %>:5269
 <% end %>
+<% if @mumble_ip %>
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 64738 -j DNAT --to-destination <%= @mumble_ip %>:64738
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p udp -m udp --dport 64738 -j DNAT --to-destination <%= @mumble_ip %>:64738
+<% end %>
+<% if @mariadb_ip %>
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 64738 -j DNAT --to-destination <%= @mariadb_ip %>:3306
+-A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p udp -m udp --dport 64738 -j DNAT --to-destination <%= @mariadb_ip %>:3306
+<% end %>
 <% if @glenn_ip %>
 # GLENN
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 3000 -j DNAT --to-destination <%= @glenn_ip %>:3000
--A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 64738 -j DNAT --to-destination <%= @glenn_ip %>:64738
--A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p udp -m udp --dport 64738 -j DNAT --to-destination <%= @glenn_ip %>:64738
 -A PREROUTING -d <%= @ip_address %>/<%= @cidr %> -p tcp -m tcp --dport 22<%= @glenn_ip.split(".")[3] %> -j DNAT --to-destination <%= @glenn_ip %>:22
 <% end %>
 <% if @canopsis_ip %>

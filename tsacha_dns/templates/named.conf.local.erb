@@ -1,62 +1,51 @@
 zone "tremoureux.fr" {
      type master;
      file "/etc/bind/db.tremoureux.fr.signed";   
-     allow-transfer { 87.98.218.210; 2001:41d0:1:49d2::1; };
+     allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
 
 zone "trs.io" {
      type master;
      file "/etc/bind/db.trs.io";   
-     allow-transfer { 87.98.218.210; 2001:41d0:1:49d2::1; 217.70.177.40; };
+     allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
 
 zone "glenn-s.eu" {
      type master;
      file "/etc/bind/db.glenn-s.eu";
-     allow-transfer { 87.98.218.210; 2001:41d0:1:49d2::1; };
+     allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
 zone "glenn.pro" {
      type master;
      file "/etc/bind/db.glenn.pro";
-     allow-transfer { 87.98.218.210; 2001:41d0:1:49d2::1; };
+     allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
 zone "terres-creuses.fr" {
      type master;
      file "/etc/bind/db.terres-creuses.fr";
-     allow-transfer { 87.98.218.210; 2001:41d0:1:49d2::1; };
+     allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
-zone "210.218.98.87.in-addr.arpa" {
-     type master;
-     file "/etc/bind/db.bergen.reverse.v4";
-     allow-transfer { 87.98.218.210; 2001:41d0:1:49d2::1; };
+
+<%-
+hosts.each do |key,value|
+  value.each do |hostname,conf|
+    if(hostname == "physical") then
+      revip = IPAddr.new(conf['ip']).reverse
+      revip6 = IPAddr.new(conf['ip6']).ip6_arpa
+-%>
+zone "<%= revip %>." {
+  type master;
+  file "/etc/bind/db.<%= key %>.reverse.v4";
+  allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
-zone "89.61.121.91.in-addr.arpa" {
-     type master;
-     file "/etc/bind/db.bergen.fallback.reverse.v4";
-     allow-transfer { 87.98.218.210; 2001:41d0:1:49d2::1; };
+
+zone "<%= revip6 %>." {
+  type master;
+  file "/etc/bind/db.<%= key %>.reverse.v6";
+  allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
-zone "154.64.154.195.in-addr.arpa" {
-     type master;
-     file "/etc/bind/db.tromso.reverse.v4";
-     allow-transfer { 87.98.218.210; 2001:41d0:1:49d2::1; };
-};
-zone "5.119.9.176.in-addr.arpa" {
-     type master;
-     file "/etc/bind/db.oslo.reverse.v4";
-     allow-transfer { 87.98.218.210; 2001:41d0:1:49d2::1; };
-};
-zone "7.0.3.7.1.5.1.0.8.f.4.0.1.0.a.2.ip6.arpa" {
-     type master;
-     file "/etc/bind/db.oslo.reverse.v6";
-     allow-transfer { 87.98.218.210; 2001:41d0:1:49d2::1; };
-};
-zone "2.d.9.4.1.0.0.0.0.d.1.4.1.0.0.2.ip6.arpa" {
-     type master;
-     file "/etc/bind/db.bergen.reverse.v6";
-     allow-transfer { 87.98.218.210; 2001:41d0:1:49d2::1; };
-};
-zone "0.0.1.0.0.5.3.3.8.c.b.0.1.0.0.2.ip6.arpa" {
-     type master;
-     file "/etc/bind/db.tromso.reverse.v6";
-     allow-transfer { 87.98.218.210; 2001:41d0:1:49d2::1; };
-};
+<%-
+    end
+  end
+end
+-%>

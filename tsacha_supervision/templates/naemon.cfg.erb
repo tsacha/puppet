@@ -14,6 +14,7 @@ temp_file=/var/lib/naemon/naemon.tmp
 temp_path=/var/cache/naemon
 event_broker_options=-1
 broker_module=/usr/lib/naemon/livestatus.o /var/cache/naemon/live
+broker_module=/usr/lib/naemon/neb2amqp.o name=Kerbin host=10.3.0.201
 log_archive_path=/var/log/naemon/archives
 use_syslog=0
 log_notifications=1

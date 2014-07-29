@@ -1,17 +1,20 @@
 class tsacha_dns::trs {
 
-    Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
+  $hosts = hiera_hash('hosts')
+  $fronts = hiera_hash('fronts')
 
-    File {
-      ensure => present,
-      owner => root,
-      group => bind,
-      mode => 0640,
-     }
+  Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
-    file { "/var/lib/named/etc/bind/db.trs.io":
-      source => "puppet:///modules/tsacha_dns/trs.io",
-      notify => Service['bind9']
-    }
+  File {
+    ensure => present,
+    owner => root,
+    group => bind,
+    mode => 0640,
+   }
+
+  file { "/var/lib/named/etc/bind/db.trs.io":
+    content => template('tsacha_dns/trs.io.erb'),
+    notify => Service['bind9']
+  }
 
 }
