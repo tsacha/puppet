@@ -2,8 +2,7 @@ class tsacha_supervision::install {
 
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
-
-  $naemondeps = ["libapache2-mod-fcgid","xvfb","libfontconfig1","libjpeg8","libpng12-0","libmysqlclient18", "bsd-mailx"]
+  $naemondeps = ["libapache2-mod-fcgid","xvfb","libfontconfig1","libjpeg8","libpng12-0","libmysqlclient18", "bsd-mailx", "rrdtool", "librrds-perl", "php5-cli", "php5-gd", "libapache2-mod-php5"]
 
   file { "/opt/naemon.deb":
     ensure => present,
@@ -159,6 +158,44 @@ class tsacha_supervision::install {
     group => naemon,
     mode => 0755,
     source => "puppet:///modules/tsacha_supervision/check_ldap",
+  }
+
+  file { "/opt/pnp4nagios.tgz":
+    ensure => present,
+    owner => root,
+    group => root,
+    mode => 0644,
+    source => "puppet:///modules/tsacha_supervision/pnp4nagios-0.6.21.tar.gz",
+  } ->
+
+  exec { "extract-pnp":
+    command => "tar xvf /opt/pnp4nagios.tgz",
+    cwd => "/usr/local/src",
+    unless => "stat /usr/local/src/pnp4nagios*"
+  } ~>
+
+  exec { "configure-pnp":
+    command => "/usr/local/src/pnp4nagios-0.6.21/configure --with-nagios-user=naemon --with-nagios-group=naemon",
+    cwd => "/usr/local/src/pnp4nagios-0.6.21/",
+    require => Exec['extract-pnp'],
+    refreshonly => true
+  } ~>
+
+  exec { "install-pnp":
+    command => "make all && make install  && make install-config && make install-init",
+    cwd => "/usr/local/src/pnp4nagios-0.6.21/",
+    require => Exec['configure-pnp'],
+    refreshonly => true
+  } ~>
+
+  file { "/usr/local/pnp4nagios/share/install.php":
+    ensure => absent,
+    require => Exec['install-pnp']
+  }
+
+  service { 'npcd':
+    ensure => running,
+    require => Exec['install-pnp']
   }
 
 }

@@ -33,4 +33,19 @@ class tsacha_lb::install {
     content => template('tsacha_lb/ports.conf.erb'),
   }
 
+  file { "/etc/nginx/sites-available/default":
+    ensure => present,
+    owner => root,
+    group => root,
+    mode => 0644,
+    require => Package['nginx'],
+    content => template('tsacha_lb/nginx.erb'),
+  }
+
+  file { "/etc/nginx/sites-enabled/default":
+    ensure => present,
+    target => "/etc/nginx/sites-available/default",
+    notify => Service['nginx'],
+  }
+
 }

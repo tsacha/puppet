@@ -18,6 +18,13 @@ class tsacha_common::puppet {
     content => template('tsacha_common/puppet.default.erb'),
   }
 
+  file { "/etc/puppet/files":
+    owner => puppet,
+    group => puppet,
+    mode => 0755,
+    ensure => directory,
+  }
+
   file { "/etc/puppet/etckeeper-commit-pre":
     owner => root,
     group => root,

@@ -20,10 +20,15 @@ trs.io.                        IN SOA    trs.io. sacha.tremoureux.fr. (
 		               
 
 <%- 
-hosts.each do |key,value|
+@hosts.each do |key,value|
   value.each do |hostname,conf|
+    if hostname != "physical" then
+      ip4 = @hosts[key]['physical']['ip']
+    else
+      ip4 = conf['ip']
+    end
 %>
-<%= conf['fqdn'] %>. A <%= conf['ip'] %>
+<%= conf['fqdn'] %>. A <%= ip4 %>
 <%= conf['fqdn'] %>. AAAA <%= conf['ip6'] %>
 <%-
   end
@@ -31,7 +36,7 @@ end
 -%>
 
 <%-
-fronts.each do |key,value|
+@fronts.each do |key,value|
 -%>
 <%= key %> CNAME <%= key %>.<%= value %>.trs.io.
 <%-

@@ -1,6 +1,7 @@
 options {
 	directory "/var/cache/bind";
 	pid-file "/var/run/bind/named.pid";
+        session-keyfile "/var/run/bind/session.key";
         dnssec-enable yes;
         dnssec-validation yes;
         dnssec-lookaside auto;

@@ -17,7 +17,7 @@ class tsacha_common::repo {
     repos             => 'main contrib non-free',
     include_src       => true,
     notify	      => Exec['repo_changed_update']
-  }      
+  }
 
   if($lsbdistcodename == "wheezy") {
     apt::source { 'stable':
@@ -54,9 +54,24 @@ class tsacha_common::repo {
     }
   }
 
-   exec { 'repo_changed_update':
-     command => '/usr/bin/apt-get update',
-     refreshonly => true
-   }
+  exec { 'repo_changed_update':
+    command => '/usr/bin/apt-get update',
+    refreshonly => true
+  }
+
+
+  apt::source { 'elasticsearch-1.3':
+    location          => 'http://packages.elasticsearch.org/elasticsearch/1.3/debian',
+    release           => 'stable',
+    repos             => 'main',
+    include_src       => false,
+    notify	      => Exec['repo_changed_update']
+  }
+
+  apt::key { 'puppetlabs':
+    key        => 'D88E42B4',
+    key_source => 'http://packages.elasticsearch.org/GPG-KEY-elasticsearch',
+    notify     => Exec['repo_changed_update']
+  }
 
 }  

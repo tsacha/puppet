@@ -1,5 +1,5 @@
 <%-
-revip = IPAddr.new(host_address).reverse
+revip = IPAddr.new(@host_address).reverse
 x = DateTime.now
 serial = x.strftime("%Y%m%d")+(((x.strftime("%H").to_i*3600+x.strftime("%M").to_i*60+x.strftime("%S").to_i)/864).to_s.rjust(2,'0'))
 -%>

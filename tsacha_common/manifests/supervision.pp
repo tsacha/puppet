@@ -77,4 +77,25 @@ class tsacha_common::supervision {
     source => "puppet:///modules/tsacha_supervision/check_postgres.pl",
     require => Exec['compile-plugins']
   }
+
+  package { 'rsyslog':
+    ensure => installed
+  }
+
+  service { 'rsyslog':
+    ensure => running,
+    require => Package['rsyslog']
+  }
+
+  file { "/etc/rsyslog.conf":
+    ensure => present,
+    owner => root,
+    group => root,
+    mode => 0644,
+    content => template('tsacha_supervision/rsyslog.conf.erb'),
+    require => Package['rsyslog'],
+    notify => Service['rsyslog']
+  }
+  
+
 }

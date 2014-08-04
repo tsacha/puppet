@@ -47,4 +47,23 @@ class tsacha_common::utils {
     ensure => installed
   }
 
+  package { 'dsh':
+    ensure => installed
+  }
+
+  package { 'htop':
+    ensure => installed 
+  }
+
+  $hosts = hiera_hash('hosts')
+
+  file { '/etc/dsh/group/trs':
+    owner => root,
+    group => root,
+    mode => 0644,
+    ensure => present,
+    content => template('tsacha_common/clusters.erb'),
+    require => Package['dsh']
+  }  
+
 }

@@ -1,35 +1,35 @@
 define service {
   service_description            PING
   hostgroup_name                 linux-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_ping!100.0,20%!500.0,60%
 }
 
 define service {
   service_description            PING4
   hostgroup_name                 linux-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_ping4!100.0,20%!500.0,60%
 }
 
 define service {
   service_description            APT
   hostgroup_name                 linux-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_ssh_apt
 }
 
 define service {
   service_description            SSH
   hostgroup_name                 linux-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_ssh
 }
 
 define service {
   service_description            SSH -IPv4 interne-
   hostgroup_name                 linux-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_ssh4
 }
 
@@ -43,7 +43,7 @@ define service {
 define service {
   service_description            Root Partition
   hostgroup_name                 lxc-hypervisors
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_ssh_disk!20%!10%!/
 }
 
@@ -57,42 +57,42 @@ define service {
 define service {
   service_description            Total Processes
   hostgroup_name                 lxc-hypervisors
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_ssh_procs!400!600!RSZDT
 }
 
 define service {
   service_description            Current Load
   hostgroup_name                 lxc-hypervisors
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_ssh_load!5.0,4.0,3.0!10.0,6.0,4.0
 }
 
 define service {
   service_description            Swap Usage
   hostgroup_name                 lxc-hypervisors
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_ssh_swap!20!10
 }
 
 define service {
   service_description            HTTP -IPv4-
   hostgroup_name                 web-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_http4
 }
 
 define service {
   service_description            HTTP
   hostgroup_name                 web-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_http
 }
 
 define service {
   service_description            SMTP -IPv4-
   hostgroup_name                 mail-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_smtp4
 }
 
@@ -100,7 +100,7 @@ define service {
 define service {
   service_description            SMTP
   hostgroup_name                 mail-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_smtp
 }
 
@@ -108,7 +108,7 @@ define service {
 define service {
   service_description            STARTTLS -IPv4-
   hostgroup_name                 mail-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_starttls4
 }
 
@@ -116,14 +116,14 @@ define service {
 define service {
   service_description            STARTTLS
   hostgroup_name                 mail-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_starttls
 }
 
 define service {
   service_description            IMAPS -IPv4-
   hostgroup_name                 mail-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_imaps4
 }
 
@@ -131,7 +131,7 @@ define service {
 define service {
   service_description            IMAPS
   hostgroup_name                 mail-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_imaps
 }
 
@@ -152,13 +152,13 @@ define service {
 define service {
   service_description            PostgreSQL -IPv4 Interne-
   hostgroup_name                 psql-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_postgres4
 }
 
 define service {
   service_description            PostgreSQL
   hostgroup_name                 psql-servers
-  use                            generic-service
+  use                            generic-service,service-pnp
   check_command                  check_postgres
 }

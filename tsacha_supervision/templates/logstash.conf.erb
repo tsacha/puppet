@@ -1,0 +1,19 @@
+input {
+  tcp {
+    type => syslog
+    port => 5544
+    codec => "json"
+  }
+}
+ 
+output {
+  elasticsearch {
+    bind_host => "kerbin.trs.io"
+    cluster => "logstash"
+    port => 9300
+  }
+
+  stdout {
+    codec => rubydebug
+  }
+}

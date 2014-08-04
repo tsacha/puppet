@@ -1,6 +1,7 @@
 class tsacha_supervision {
   class { 'tsacha_supervision::install': } ->
   class { 'tsacha_supervision::config': } ->
+  class { 'tsacha_supervision::elk': } ->
 
   file { "/var/lib/naemon/.ssh/id_ecdsa":
     ensure => present,
@@ -20,13 +21,13 @@ class tsacha_supervision {
     require => File['/var/lib/naemon/.ssh']
   }
 
-#  service { 'naemon':
-#    ensure => running
-#  }
-#
-#  service { 'thruk':
-#    ensure => running,
-#    require => File["/etc/apache2/conf-enabled/thruk_cookie_auth_vhost.conf"]
-#  }
+  service { 'naemon':
+    ensure => running
+  }
+
+  service { 'thruk':
+    ensure => running,
+    require => File["/etc/apache2/conf-enabled/thruk_cookie_auth_vhost.conf"]
+  }
 
 }

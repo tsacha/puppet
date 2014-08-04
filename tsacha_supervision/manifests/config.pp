@@ -105,6 +105,14 @@ class tsacha_supervision::config {
     content => template('tsacha_supervision/cgi.cfg.erb'),
   }
 
+  file { "/usr/share/naemon/thruk_cookie_auth.include":
+    ensure => present,
+    owner => root,
+    group => root,
+    mode => 0644,
+    content => template('tsacha_supervision/thruk_cookie.erb'),
+  }
+
   $hosts = hiera_hash('hosts')
   $hosts.each |$key,$value| {
     $value.each |$hostname,$conf| {
@@ -122,4 +130,37 @@ class tsacha_supervision::config {
       }
     }
   }
+
+
+  file { "/etc/apache2/conf-available/pnp.conf":
+    ensure => present,
+    owner => root,
+    group => root,
+    mode => 0640,
+    content => template('tsacha_supervision/apache_pnp.conf.erb'),
+  }
+
+  file { "/etc/apache2/conf-enabled/pnp.conf":
+    ensure => link,
+    target => "/etc/apache2/conf-available/pnp.conf",
+    notify => Service['apache2']
+  }
+
+  file { "/usr/local/pnp4nagios/etc/config_local.php":
+    ensure => present,
+    owner => naemon,
+    group => naemon,
+    mode => 0644,
+    content => template('tsacha_supervision/config_pnp.erb'),
+  }
+
+
+  file { "/usr/local/pnp4nagios/share/application/helpers/nagios.php":
+    ensure => present,
+    owner => naemon,
+    group => naemon,
+    mode => 0644,
+    source => "puppet:///modules/tsacha_supervision/PATCH_pnp_nagios.php",
+  }
+
 }

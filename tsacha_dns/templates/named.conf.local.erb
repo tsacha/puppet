@@ -27,7 +27,7 @@ zone "terres-creuses.fr" {
 };
 
 <%-
-hosts.each do |key,value|
+@hosts.each do |key,value|
   value.each do |hostname,conf|
     if(hostname == "physical") then
       revip = IPAddr.new(conf['ip']).reverse
