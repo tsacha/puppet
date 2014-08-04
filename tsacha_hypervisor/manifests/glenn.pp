@@ -5,7 +5,7 @@
 class tsacha_hypervisor::glenn {
   include tsacha_hypervisor::network
 
-  Class['tsacha_hypervisor::dns'] -> Class['tsacha_hypervisor::glenn']
+  require tsacha_hypervisor::mariadb
 
   $hosts = hiera_hash('hosts')
 

@@ -5,7 +5,7 @@
 class tsacha_hypervisor::mumble {
   include tsacha_hypervisor::network
 
-  Class['tsacha_hypervisor::dns'] -> Class['tsacha_hypervisor::mumble']
+  require tsacha_hypervisor::dns
 
   $hosts = hiera_hash('hosts')
 

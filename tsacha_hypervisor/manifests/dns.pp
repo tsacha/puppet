@@ -5,7 +5,7 @@
 class tsacha_hypervisor::dns {
   include tsacha_hypervisor::network
 
-  Class['tsacha_common::auth'] -> Class['tsacha_hypervisor::lxc'] -> Class['tsacha_hypervisor::dns']
+  require tsacha_hypervisor::auth -> require tsacha_hypervisor::lxc
 
   $hosts = hiera_hash('hosts')
 

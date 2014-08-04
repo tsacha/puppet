@@ -5,7 +5,7 @@
 class tsacha_hypervisor::psql {
   include tsacha_hypervisor::network
 
-  Class['tsacha_hypervisor::mail'] -> Class['tsacha_hypervisor::psql']
+  require tsacha_hypervisor::dns
 
   $hosts = hiera_hash('hosts')
 
