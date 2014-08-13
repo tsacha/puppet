@@ -39,6 +39,10 @@ class tsacha_common::utils {
     ensure => installed
   }
 
+  package { 'ruby-dev':
+    ensure => installed
+  }
+
   package { 'libssl-dev':
     ensure => installed
   }

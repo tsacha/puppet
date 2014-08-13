@@ -74,4 +74,16 @@ class tsacha_common::repo {
     notify     => Exec['repo_changed_update']
   }
 
+  apt::key { 'sensu':
+    key => '7580C77F',
+    key_source => 'http://repos.sensuapp.org/apt/pubkey.gpg'
+  }
+
+  apt::source { 'sensu':
+    location => 'http://repos.sensuapp.org/apt',
+    release => 'sensu',
+    repos => 'main',
+    include_src => false,
+  }
+
 }  

@@ -45,14 +45,10 @@ class tsacha_hypervisor::lxc {
     ensure => installed
   }
 
-  package { 'ruby-dev':
-    ensure => installed
-  }
-
   exec { 'ruby-libvirt':
     command => 'gem install --no-rdoc --no-ri ruby-libvirt',
     unless => "gem list ruby-libvirt | grep ruby-libvirt",
-    require => [Package['libvirt-dev'],Package['make'],Package['ruby-dev']]
+    require => [Package['libvirt-dev'],Package['make']]
   }
 
   package { 'debootstrap':
