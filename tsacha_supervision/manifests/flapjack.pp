@@ -20,7 +20,7 @@ class tsacha_supervision::flapjack {
     owner => root,
     group => root,
     mode => 0664,
-    content => template('tsacha_supervision/flapjack.yaml.erb'),
+    content => template('tsacha_supervision/flapjack/flapjack_config.yaml.erb'),
   }
 
 
@@ -29,7 +29,7 @@ class tsacha_supervision::flapjack {
     owner => root,
     group => root,
     mode => 0755,
-    content => template('tsacha_supervision/flapjack.init.erb'),
+    content => template('tsacha_supervision/flapjack/init.erb'),
   }
 
   service { 'flapjack':

@@ -1,0 +1,11 @@
+{
+  "checks": {
+    "puppet_check": {
+      "type": "metric",
+      "command": "check-procs.rb -p 'puppet agent'",
+      "interval": 30,
+      "subscribers": ["puppet"],
+      "handlers": ["flapjack"]
+    }
+  }
+}

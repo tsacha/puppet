@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# chkconfig: 345 90 90
+# description: Flapjack
+
+### BEGIN INIT INFO
+# Provides:       flapjack
+# Required-Start: $remote_fs $network
+# Required-Stop:  $remote_fs $network
+# Default-Start:  2 3 4 5
+# Default-Stop:   0 1 6
+# Description:    Flapjack
+### END INIT INFO
+
+$(gem env gemdir)/gems/flapjack*/bin/flapjack $1
+
+exit $?

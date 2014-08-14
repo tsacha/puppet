@@ -1,8 +1,0 @@
-define host {
-  host_name                      <%= @host_name %>
-  address                        <%= @host_address6 %>
-  _ADDRESS4                      <%= @host_address %>
-  use                            linux-server,host-pnp
-  hostgroups                     linux-servers,<% if(@type == "physical") %>lxc-hypervisors<% else %><%= @type %>-servers,lxc-containers<% end %>
-<% if(@type != "physical") %>  parents <%= @host_name.split('.')[1..-1].join('.') %><% end %>
-}

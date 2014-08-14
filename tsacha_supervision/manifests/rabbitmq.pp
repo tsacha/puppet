@@ -7,7 +7,7 @@ class tsacha_supervision::rabbitmq {
     owner => rabbitmq,
     group => rabbitmq,
     mode => 0664,
-    content => template('tsacha_supervision/rabbitmq.config.erb'),
+    content => template('tsacha_supervision/rabbitmq/rabbitmq.config.erb'),
     require => Package['rabbitmq-server'],
     notify => Service['rabbitmq-server']
   }

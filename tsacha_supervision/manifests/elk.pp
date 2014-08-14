@@ -31,7 +31,7 @@ class tsacha_supervision::elk {
     owner => root,
     group => root,
     mode => 0664,
-    content => template('tsacha_supervision/kibana.js.erb'),
+    content => template('tsacha_supervision/kibana/config.js.erb'),
     require => Exec['extract-kibana']
   }
 
@@ -65,7 +65,7 @@ class tsacha_supervision::elk {
     owner => root,
     group => root,
     mode => 0644,
-    content => template('tsacha_supervision/logstash.conf.erb'),
+    content => template('tsacha_supervision/logstash/logstash.conf.erb'),
     require => Package['logstash'],
     notify => Service['logstash']
   }
@@ -79,7 +79,7 @@ class tsacha_supervision::elk {
     owner => root,
     group => root,
     mode => 0644,
-    content => template('tsacha_supervision/graphite-carbon.erb'),
+    content => template('tsacha_supervision/graphite/default.graphite-carbon.erb'),
     require => Package['graphite-carbon'],
     notify => Service['carbon-cache']
   }
@@ -99,7 +99,7 @@ class tsacha_supervision::elk {
     owner => root,
     group => root,
     mode => 0644,
-    content => template('tsacha_supervision/graphite.apache.erb'),
+    content => template('tsacha_supervision/graphite/apache.erb'),
     notify => Service['apache2']
   }
 
@@ -131,7 +131,7 @@ class tsacha_supervision::elk {
     mode => 0644,
     require => Exec['extract-grafana'],
     notify => Service['apache2'],
-    content => template('tsacha_supervision/config.js.grafana.erb'),
+    content => template('tsacha_supervision/grafana/config.js.erb'),
   }
 
 }
