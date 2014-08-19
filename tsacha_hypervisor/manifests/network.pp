@@ -95,12 +95,48 @@ class tsacha_hypervisor::network {
     require => [Exec["addr-extern-bridge"],Exec["up-extern-bridge"],Exec["route-gateway6"]]
   }
 
-  file { "/etc/network/interfaces":
-    owner => root,
-    group => root,
-    mode => 0644,
-    ensure => present,
-    content => template('tsacha_hypervisor/interfaces.erb'),
+  if($operatingsystem == "Debian") {
+    file { "/etc/network/interfaces":
+      owner => root,
+      group => root,
+      mode => 0644,
+      ensure => present,
+      content => template('tsacha_hypervisor/interfaces.erb'),
+    }
+  }
+  if($operatingsystem == "CentOS") {
+    file { "/etc/sysconfig/network":
+      owner => root,
+      group => root,
+      mode => 0644,
+      ensure => present,
+      content => template('tsacha_hypervisor/network.centos'),
+    }
+
+    file { "/etc/sysconfig/network-scripts/ifcfg-eth0":
+      owner => root,
+      group => root,
+      mode => 0644,
+      ensure => present,
+      content => template('tsacha_hypervisor/ifcfg-eth0.centos'),
+    }
+
+    file { "/etc/sysconfig/network-scripts/ifcfg-br-ex":
+      owner => root,
+      group => root,
+      mode => 0644,
+      ensure => present,
+      content => template('tsacha_hypervisor/ifcfg-br-ex.centos'),
+    }
+
+    file { "/etc/sysconfig/network-scripts/ifcfg-br-int":
+      owner => root,
+      group => root,
+      mode => 0644,
+      ensure => present,
+      content => template('tsacha_hypervisor/ifcfg-br-int.centos'),
+    }
+
   }
 
   $hosts.each |$key,$value| {

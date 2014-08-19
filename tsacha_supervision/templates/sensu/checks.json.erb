@@ -1,0 +1,62 @@
+{
+  "checks": {
+    "load_metrics": {
+      "type": "metric",
+      "command": "/opt/sensu-community-plugins/plugins/system/load-metrics.rb",
+      "interval": 10,
+      "subscribers": ["lxc-hypervisors"],
+      "handlers": ["relay"]
+    },
+    "memory_metrics": {
+      "type": "metric",
+      "command": "/opt/sensu-community-plugins/plugins/system/memory-metrics.rb",
+      "interval": 10,
+      "subscribers": ["lxc-hypervisors"],
+      "handlers": ["relay"]
+    },
+    "disk_capacity_metrics": {
+      "type": "metric",
+      "command": "/opt/sensu-community-plugins/plugins/system/disk-capacity-metrics.rb",
+      "interval": 10,
+      "subscribers": ["lxc-hypervisors"],
+      "handlers": ["relay"]
+    },
+    "interface_metrics": {
+      "type": "metric",
+      "command": "/opt/sensu-community-plugins/plugins/system/interface-metrics.rb -x vnet*,duna*,kerbin*,jool*,br*,lo*",
+      "interval": 10,
+      "subscribers": ["lxc-hypervisors"],
+      "handlers": ["relay"]
+    },
+    "check_apt": {
+      "command": "ruby -lae 'cmd=`/usr/local/libexec/check_apt`; ret = $?.exitstatus; print cmd.split(\"|\").first; exit ret'",
+      "interval": 10,
+      "subscribers": ["all"],
+      "handlers": ["flapjack"]
+    },
+    "check_http_ipv6": {
+      "command": "ruby -lae 'cmd=`/usr/local/libexec/check_http -6 -H localhost`; ret = $?.exitstatus; print cmd.split(\"|\").first; exit ret'",
+      "interval": 10,
+      "subscribers": ["web-servers"],
+      "handlers": ["flapjack"]
+    },
+    "check_http_ipv4": {
+      "command": "ruby -lae 'cmd=`/usr/local/libexec/check_http -4 -H localhost`; ret = $?.exitstatus; print cmd.split(\"|\").first; exit ret'",
+      "interval": 10,
+      "subscribers": ["web-servers"],
+      "handlers": ["flapjack"]
+    },
+    "check_imaps_ipv4": {
+      "command": "ruby -lae 'cmd=`/usr/local/libexec/check_imap -p 993 -S -4 -H localhost`; ret = $?.exitstatus; print cmd.split(\"|\").first; exit ret'",
+      "interval": 10,
+      "subscribers": ["mail-servers"],
+      "handlers": ["flapjack"]
+    },
+    "check_imaps_ipv6": {
+      "command": "ruby -lae 'cmd=`/usr/local/libexec/check_imap -p 993 -S -6 -H localhost`; ret = $?.exitstatus; print cmd.split(\"|\").first; exit ret'",
+      "interval": 10,
+      "subscribers": ["mail-servers"],
+      "handlers": ["flapjack"]
+    }
+  }
+}

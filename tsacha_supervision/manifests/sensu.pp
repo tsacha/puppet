@@ -64,24 +64,14 @@ class tsacha_supervision::sensu {
     notify => Service['sensu-server']
   }
 
-  file { "/etc/sensu/conf.d/metrics.json":
+  file { "/etc/sensu/conf.d/checks.json":
     ensure => present,
     owner => sensu,
     group => sensu,
     mode => 0664,
-    content => template('tsacha_supervision/sensu/metrics.json.erb'),
+    content => template('tsacha_supervision/sensu/checks.json.erb'),
     require => Package['sensu'],
-    notify => Service['sensu-server'],
-  }
-
-  file { "/etc/sensu/conf.d/puppet.json":
-    ensure => present,
-    owner => sensu,
-    group => sensu,
-    mode => 0664,
-    content => template('tsacha_supervision/sensu/puppet.json.erb'),
-    require => Package['sensu'],
-    notify => Service['sensu-server'],
+    notify => [Service['sensu-server'],Service['sensu-api']],
   }
 
   file { "/etc/sensu/conf.d/flapjack.json":

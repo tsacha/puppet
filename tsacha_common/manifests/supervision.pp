@@ -4,6 +4,40 @@ class tsacha_common::supervision {
 
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
+  file { "/opt/monitoring-plugins.tar.gz":
+    ensure => present,
+    owner => root,
+    group => root,
+    mode => 0640,
+    source => "puppet:///modules/tsacha_supervision/monitoring-plugins-2.0.tar.gz",
+  } ->
+
+  exec { "untar-plugins":
+    command => "tar xvf monitoring-plugins.tar.gz",
+    cwd => "/opt",
+    unless => "stat monitoring-plugins-2.0"
+  }
+
+  if($operatingsystem == "Debian") {
+    exec { "compile-plugins":
+      command => "/opt/monitoring-plugins-2.0/configure --with-openssl && make && make install",
+      cwd => "/opt/monitoring-plugins-2.0",
+      timeout => 1000,
+      require => [Exec['untar-plugins'],Package['build-essential'],Package['libssl-dev']],
+      unless => "stat /usr/local/libexec/"
+    }
+  }
+
+  if($operatingsystem == "CentOS") {
+    exec { "compile-plugins":
+      command => "/opt/monitoring-plugins-2.0/configure --with-openssl && make && make install",
+      cwd => "/opt/monitoring-plugins-2.0",
+      timeout => 1000,
+      require => [Exec['untar-plugins'],Exec['development-tools'],Package['openssl-devel']],
+      unless => "stat /usr/local/libexec/"
+    }
+  }
+
   package { 'rsyslog':
     ensure => installed
   }
@@ -25,6 +59,14 @@ class tsacha_common::supervision {
   
   package { 'sensu':
     ensure => installed
+  } ->
+
+  file { "/var/run/sensu":
+    ensure => directory,
+    owner => sensu,
+    group => root,
+    mode => 0755,
+    require => Package['sensu']
   } ->
 
   file { "/etc/sensu/ssl":
@@ -79,25 +121,9 @@ class tsacha_common::supervision {
     unless => "stat /opt/sensu-community-plugins",
   }
 
-  exec { "install-load-metrics":
-    cwd => "/opt/",
-    command => "cp sensu-community-plugins/plugins/system/load-metrics.rb /etc/sensu/plugins",
-    require => [Package['sensu'],Exec['sensu-plugin']],
-    notify => Service['sensu-client'],
-    unless => "stat /etc/sensu/plugins/load-metrics.rb"
-  }
-
-  exec { "install-check-procs":
-    cwd => "/opt/",
-    command => "cp sensu-community-plugins/plugins/processes/check-procs.rb /etc/sensu/plugins",
-    require => [Package['sensu'],Exec['sensu-plugin']],
-    notify => Service['sensu-client'],
-    unless => "stat /etc/sensu/plugins/check-procs.rb"
-  }
-
   service { 'sensu-client':
     ensure => running,
-    require => Exec['install-load-metrics']
+    require => File['/etc/sensu/conf.d/client.json']
   }
 
   exec { 'sensu-plugin':

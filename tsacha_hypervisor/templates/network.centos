@@ -1,0 +1,3 @@
+NOZEROCONF=true
+GATEWAY=<%= @gateway %>
+NETWORKING_IPV6=yes

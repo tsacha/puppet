@@ -4,3 +4,9 @@
 [submodule "apt"]
 	path = apt
 	url = https://github.com/puppetlabs/puppetlabs-apt.git
+[submodule "puppet-module-epel"]
+	path = puppet-module-epel
+	url = https://github.com/stahnma/puppet-module-epel.git
+[submodule "epel"]
+	path = epel
+	url = https://github.com/stahnma/puppet-module-epel.git

@@ -1,0 +1,9 @@
+DEVICE=br-int
+TYPE=Bridge
+IPADDR=<%= @ip_private_address %>
+PREFIX=<%= @cidr_private %>
+GATEWAY=<%= @gateway %>
+ONBOOT=yes
+BOOTPROTO=none
+NM_CONTROLLED=no
+DELAY=0

@@ -1,0 +1,6 @@
+DEVICE=eth0
+TYPE=Ethernet
+BOOTPROTO=static
+ONBOOT=yes
+NM_CONTROLLED=no
+BRIDGE=br-ex

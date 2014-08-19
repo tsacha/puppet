@@ -1,7 +1,14 @@
+<%-
+if(@fqdn.split('.').size < 4) then
+type="physical"
+else
+type=@fqdn.split('.').first
+end
+-%>
 {
   "client": {
     "name": "<%= @fqdn %>",
     "address": "kerbin.trs.io",
-    "subscriptions": [ "all","puppet" ]
+    "subscriptions": [ "all","<% if(type == "physical") %>lxc-hypervisors<% else %><%= type %>-servers","lxc-containers<% end %>" ]
   }
 }
