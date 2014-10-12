@@ -6,7 +6,7 @@ class tsacha_web::autoconfig {
       ensure => present,
       owner => root,
       group => root,
-      mode => 0640,
+      mode => '0640',
       notify => File['/etc/apache2/sites-enabled/autoconfig.conf'],
       content => template('tsacha_web/autoconfig.erb'),
     }
@@ -19,23 +19,23 @@ class tsacha_web::autoconfig {
 
     file { "/srv/web/autoconfig":
       ensure => directory,
-      owner => www-data,
-      group => www-data,
-      mode => 0775
+      owner => apache,
+      group => apache,
+      mode => '0775'
     } ->
 
     file { "/srv/web/autoconfig/mail":
       ensure => directory,
-      owner => www-data,
-      group => www-data,
-      mode => 0775
+      owner => apache,
+      group => apache,
+      mode => '0775'
     } ->
 
     file { "/srv/web/autoconfig/mail/config-v1.1.xml":
       ensure => present,
-      owner => www-data,
-      group => www-data,
-      mode => 0644,
+      owner => apache,
+      group => apache,
+      mode => '0644',
       source => "puppet:///modules/tsacha_web/config-v1.1.xml"
     }
 

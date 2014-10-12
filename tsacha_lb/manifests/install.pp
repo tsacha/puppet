@@ -6,46 +6,40 @@ class tsacha_lb::install {
     ensure => installed
   }  
 
-  service { 'apache2':
+  service { 'httpd':
   }
 
-  file { '/etc/apache2/sites-available/000-default.conf':
+  file { '/etc/httpd/conf.d/welcome.conf':
     ensure => absent,
-    notify => Service['apache2']
+    notify => Service['httpd']
   }
 
-  file { '/etc/apache2/sites-available/default-ssl.conf':
-    ensure => absent,
-    notify => Service['apache2']
-  }
 
-  file { '/etc/apache2/sites-enabled/000-default.conf':
-    ensure => absent,
-    notify => Service['apache2']
-  }
-
-  file { "/etc/apache2/ports.conf":
+  file { "/etc/httpd/conf.d/ssl.conf":
     ensure => present,
     owner => root,
     group => root,
-    mode => 0640,
-    notify => Service['apache2'],
-    content => template('tsacha_lb/ports.conf.erb'),
+    mode => '0640',
+    notify => [Service['httpd'],Service['nginx']],
+    content => template('tsacha_lb/ssl.conf.erb'),
   }
 
-  file { "/etc/nginx/sites-available/default":
+  file { "/etc/nginx/conf.d/default.conf":
     ensure => present,
     owner => root,
     group => root,
-    mode => 0644,
-    require => Package['nginx'],
+    mode => '0640',
+    notify => Service['nginx'],
     content => template('tsacha_lb/nginx.erb'),
   }
 
-  file { "/etc/nginx/sites-enabled/default":
+  file { "/etc/httpd/conf/httpd.conf":
     ensure => present,
-    target => "/etc/nginx/sites-available/default",
-    notify => Service['nginx'],
+    owner => root,
+    group => root,
+    mode => '0640',
+    notify => [Service['httpd'],Service['nginx']],
+    content => template('tsacha_lb/httpd.conf.erb'),
   }
 
 }

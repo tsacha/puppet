@@ -1,8 +1,8 @@
 #!/bin/bash
-/etc/init.d/slapd stop
+systemctl stop slapd
 rm -Rf /var/lib/ldap/*
 slapadd -l db.ldif
-chown openldap:openldap -R /var/lib/ldap/
-/etc/init.d/slapd start
+chown ldap.ldap -R /var/lib/ldap/
+systemctl start slapd
 sleep 1
-ldappasswd -H ldaps://ldap.s.tremoureux.fr -D "cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr" -w "$1" -s "$2"
+ldappasswd -H ldap://<%= @fqdn %> -D "cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr" -w "$1" -s "$2"

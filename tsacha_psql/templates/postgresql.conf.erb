@@ -38,15 +38,15 @@
 # The default values of these variables are driven from the -D command-line
 # option or PGDATA environment variable, represented here as ConfigDir.
 
-data_directory = '/var/lib/postgresql/9.1/main'		# use data in another directory
+#data_directory = 'ConfigDir'		# use data in another directory
 					# (change requires restart)
-hba_file = '/etc/postgresql/9.1/main/pg_hba.conf'	# host-based authentication file
+#hba_file = 'ConfigDir/pg_hba.conf'	# host-based authentication file
 					# (change requires restart)
-ident_file = '/etc/postgresql/9.1/main/pg_ident.conf'	# ident configuration file
+#ident_file = 'ConfigDir/pg_ident.conf'	# ident configuration file
 					# (change requires restart)
 
 # If external_pid_file is not explicitly set, no extra PID file is written.
-external_pid_file = '/var/run/postgresql/9.1-main.pid'		# write an extra PID file
+#external_pid_file = ''			# write an extra PID file
 					# (change requires restart)
 
 
@@ -56,16 +56,20 @@ external_pid_file = '/var/run/postgresql/9.1-main.pid'		# write an extra PID fil
 
 # - Connection Settings -
 
-listen_addresses = '*'  		# what IP address(es) to listen on;
+listen_addresses = '*'
+#listen_addresses = 'localhost'		# what IP address(es) to listen on;
 					# comma-separated list of addresses;
-					# defaults to 'localhost', '*' = all
+					# defaults to 'localhost'; use '*' for all
 					# (change requires restart)
-port = 5432				# (change requires restart)
+#port = 5432				# (change requires restart)
+# Note: In RHEL/Fedora installations, you can't set the port number here;
+# adjust it in the service file instead.
 max_connections = 100			# (change requires restart)
 # Note:  Increasing max_connections costs ~400 bytes of shared memory per
 # connection slot, plus lock space (see max_locks_per_transaction).
 #superuser_reserved_connections = 3	# (change requires restart)
-unix_socket_directory = '/var/run/postgresql'		# (change requires restart)
+#unix_socket_directories = '/var/run/postgresql, /tmp'	# comma-separated list of directories
+					# (change requires restart)
 #unix_socket_group = ''			# (change requires restart)
 #unix_socket_permissions = 0777		# begin with 0 to use octal notation
 					# (change requires restart)
@@ -77,10 +81,14 @@ unix_socket_directory = '/var/run/postgresql'		# (change requires restart)
 # - Security and Authentication -
 
 #authentication_timeout = 1min		# 1s-600s
-ssl = true				# (change requires restart)
+#ssl = off				# (change requires restart)
 #ssl_ciphers = 'ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH'	# allowed SSL ciphers
 					# (change requires restart)
 #ssl_renegotiation_limit = 512MB	# amount of data between renegotiations
+#ssl_cert_file = 'server.crt'		# (change requires restart)
+#ssl_key_file = 'server.key'		# (change requires restart)
+#ssl_ca_file = ''			# (change requires restart)
+#ssl_crl_file = ''			# (change requires restart)
 #password_encryption = on
 #db_user_namespace = off
 
@@ -119,6 +127,11 @@ shared_buffers = 24MB			# min 128kB
 #maintenance_work_mem = 16MB		# min 1MB
 #max_stack_depth = 2MB			# min 100kB
 
+# - Disk -
+
+#temp_file_limit = -1			# limits per-session temp file space
+					# in kB, or -1 for no limit
+
 # - Kernel Resource Usage -
 
 #max_files_per_process = 1000		# min 25
@@ -141,7 +154,7 @@ shared_buffers = 24MB			# min 128kB
 
 # - Asynchronous Behavior -
 
-#effective_io_concurrency = 1		# 1-1000. 0 disables prefetching
+#effective_io_concurrency = 1		# 1-1000; 0 disables prefetching
 
 
 #------------------------------------------------------------------------------
@@ -153,7 +166,8 @@ shared_buffers = 24MB			# min 128kB
 #wal_level = minimal			# minimal, archive, or hot_standby
 					# (change requires restart)
 #fsync = on				# turns forced synchronization on or off
-#synchronous_commit = on		# synchronization level; on, off, or local
+#synchronous_commit = on		# synchronization level;
+					# off, local, remote_write, or on
 #wal_sync_method = fsync		# the default is the first option
 					# supported by the operating system:
 					#   open_datasync
@@ -181,6 +195,9 @@ shared_buffers = 24MB			# min 128kB
 #archive_mode = off		# allows archiving to be done
 				# (change requires restart)
 #archive_command = ''		# command to use to archive a logfile segment
+				# placeholders: %p = path of file to archive
+				#               %f = file name only
+				# e.g. 'test ! -f /mnt/server/archivedir/%f && cp %p /mnt/server/archivedir/%f'
 #archive_timeout = 0		# force a logfile segment switch after this
 				# number of seconds; 0 disables
 
@@ -189,23 +206,27 @@ shared_buffers = 24MB			# min 128kB
 # REPLICATION
 #------------------------------------------------------------------------------
 
-# - Master Server -
+# - Sending Server(s) -
 
-# These settings are ignored on a standby server
+# Set these on the master and on any standby that will send replication data.
 
 #max_wal_senders = 0		# max number of walsender processes
 				# (change requires restart)
-#wal_sender_delay = 1s		# walsender cycle time, 1-10000 milliseconds
 #wal_keep_segments = 0		# in logfile segments, 16MB each; 0 disables
-#vacuum_defer_cleanup_age = 0	# number of xacts by which cleanup is delayed
 #replication_timeout = 60s	# in milliseconds; 0 disables
+
+# - Master Server -
+
+# These settings are ignored on a standby server.
+
 #synchronous_standby_names = ''	# standby servers that provide sync rep
 				# comma-separated list of application_name
 				# from standby(s); '*' = all
+#vacuum_defer_cleanup_age = 0	# number of xacts by which cleanup is delayed
 
 # - Standby Servers -
 
-# These settings are ignored on a master server
+# These settings are ignored on a master server.
 
 #hot_standby = off			# "on" allows queries during recovery
 					# (change requires restart)
@@ -231,6 +252,7 @@ shared_buffers = 24MB			# min 128kB
 #enable_hashagg = on
 #enable_hashjoin = on
 #enable_indexscan = on
+#enable_indexonlyscan = on
 #enable_material = on
 #enable_mergejoin = on
 #enable_nestloop = on
@@ -279,7 +301,7 @@ shared_buffers = 24MB			# min 128kB
 					# requires logging_collector to be on.
 
 # This is used when logging to stderr:
-#logging_collector = off		# Enable capturing of stderr and csvlog
+logging_collector = on			# Enable capturing of stderr and csvlog
 					# into log files. Required to be on for
 					# csvlogs.
 					# (change requires restart)
@@ -287,11 +309,11 @@ shared_buffers = 24MB			# min 128kB
 # These are only used if logging_collector is on:
 #log_directory = 'pg_log'		# directory where log files are written,
 					# can be absolute or relative to PGDATA
-#log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'	# log file name pattern,
+log_filename = 'postgresql-%a.log'	# log file name pattern,
 					# can include strftime() escapes
 #log_file_mode = 0600			# creation mode for log files,
 					# begin with 0 to use octal notation
-#log_truncate_on_rotation = off		# If on, an existing log file with the
+log_truncate_on_rotation = on		# If on, an existing log file with the
 					# same name as the new log file will be
 					# truncated rather than appended to.
 					# But such truncation only occurs on
@@ -299,9 +321,9 @@ shared_buffers = 24MB			# min 128kB
 					# or size-driven rotation.  Default is
 					# off, meaning append to existing files
 					# in all cases.
-#log_rotation_age = 1d			# Automatic rotation of logfiles will
+log_rotation_age = 1d			# Automatic rotation of logfiles will
 					# happen after that time.  0 disables.
-#log_rotation_size = 10MB		# Automatic rotation of logfiles will
+log_rotation_size = 0			# Automatic rotation of logfiles will
 					# happen after that much log output.
 					# 0 disables.
 
@@ -309,11 +331,8 @@ shared_buffers = 24MB			# min 128kB
 #syslog_facility = 'LOCAL0'
 #syslog_ident = 'postgres'
 
-#silent_mode = off			# Run server silently.
-					# DO NOT USE without syslog or
-					# logging_collector
-					# (change requires restart)
-
+# This is only relevant when logging to eventlog (win32):
+#event_source = 'PostgreSQL'
 
 # - When to Log -
 
@@ -374,7 +393,7 @@ shared_buffers = 24MB			# min 128kB
 #log_duration = off
 #log_error_verbosity = default		# terse, default, or verbose messages
 #log_hostname = off
-log_line_prefix = '%t '			# special values:
+#log_line_prefix = ''			# special values:
 					#   %a = application name
 					#   %u = user name
 					#   %d = database name
@@ -393,13 +412,13 @@ log_line_prefix = '%t '			# special values:
 					#   %q = stop here in non-session
 					#        processes
 					#   %% = '%'
-					# e.g. '< %u%%%d> '
+					# e.g. '<%u%%%d> '
 #log_lock_waits = off			# log lock waits >= deadlock_timeout
 #log_statement = 'none'			# none, ddl, mod, all
 #log_temp_files = -1			# log temporary files equal or larger
 					# than the specified size in kilobytes;
 					# -1 disables, 0 logs all temp files
-#log_timezone = '(defaults to server environment setting)'
+log_timezone = 'UTC'
 
 
 #------------------------------------------------------------------------------
@@ -410,6 +429,7 @@ log_line_prefix = '%t '			# special values:
 
 #track_activities = on
 #track_counts = on
+#track_io_timing = off
 #track_functions = none			# none, pl, all
 #track_activity_query_size = 1024 	# (change requires restart)
 #update_process_title = on
@@ -479,7 +499,7 @@ log_line_prefix = '%t '			# special values:
 
 datestyle = 'iso, mdy'
 #intervalstyle = 'postgres'
-#timezone = '(defaults to server environment setting)'
+timezone = 'UTC'
 #timezone_abbreviations = 'Default'     # Select the set of available time zone
 					# abbreviations.  Currently, there are
 					#   Default
@@ -492,11 +512,11 @@ datestyle = 'iso, mdy'
 					# encoding
 
 # These settings are initialized by initdb, but they can be changed.
-lc_messages = 'C'			# locale for system error message
+lc_messages = 'en_US.UTF-8'			# locale for system error message
 					# strings
-lc_monetary = 'C'			# locale for monetary formatting
-lc_numeric = 'C'			# locale for number formatting
-lc_time = 'C'				# locale for time formatting
+lc_monetary = 'en_US.UTF-8'			# locale for monetary formatting
+lc_numeric = 'en_US.UTF-8'			# locale for number formatting
+lc_time = 'en_US.UTF-8'				# locale for time formatting
 
 # default configuration for text search
 default_text_search_config = 'pg_catalog.english'
@@ -519,6 +539,7 @@ default_text_search_config = 'pg_catalog.english'
 # lock table slots.
 #max_pred_locks_per_transaction = 64	# min 10
 					# (change requires restart)
+
 
 #------------------------------------------------------------------------------
 # VERSION/PLATFORM COMPATIBILITY
@@ -545,12 +566,12 @@ default_text_search_config = 'pg_catalog.english'
 # ERROR HANDLING
 #------------------------------------------------------------------------------
 
-#exit_on_error = off				# terminate session on any error?
-#restart_after_crash = on			# reinitialize after backend crash?
+#exit_on_error = off			# terminate session on any error?
+#restart_after_crash = on		# reinitialize after backend crash?
 
 
 #------------------------------------------------------------------------------
 # CUSTOMIZED OPTIONS
 #------------------------------------------------------------------------------
 
-#custom_variable_classes = ''		# list of custom variable class names
+# Add settings for extensions here

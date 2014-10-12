@@ -12,12 +12,28 @@ class tsacha_containers::network {
   
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
-  file { "/etc/network/interfaces":
+  file { "/etc/sysconfig/network-scripts/ifcfg-eth0":
     owner => root,
     group => root,
-    mode => 0644,
+    mode => '0644',
     ensure => present,
-    content => template('tsacha_containers/interfaces.erb')
+    content => template('tsacha_containers/eth0.erb')
+  }
+
+  file { "/etc/sysconfig/network-scripts/ifcfg-eth1":
+    owner => root,
+    group => root,
+    mode => '0644',
+    ensure => present,
+    content => template('tsacha_containers/eth1.erb')
+  }
+
+  file { "/etc/sysconfig/network":
+    owner => root,
+    group => root,
+    mode => '0644',
+    ensure => present,
+    content => template('tsacha_containers/network.erb')
   }
 
 }

@@ -7,8 +7,7 @@ class tsacha_im {
 
   service { 'prosody':
     ensure => running,
-    hasstatus => false
-  }
+  } ->
   service { 'saslauthd':
     ensure => running,
   }

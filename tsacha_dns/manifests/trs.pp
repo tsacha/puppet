@@ -8,13 +8,13 @@ class tsacha_dns::trs {
   File {
     ensure => present,
     owner => root,
-    group => bind,
-    mode => 0640,
+    group => named,
+    mode => '0640',
    }
 
-  file { "/var/lib/named/etc/bind/db.trs.io":
+  file { "/var/named/db.trs.io":
     content => template('tsacha_dns/trs.io.erb'),
-    notify => Service['bind9']
+    notify => Service['named']
   }
 
 }

@@ -2,23 +2,15 @@ class tsacha_mail::packages {
 
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
   
-  package { 'ldap-utils':
+  package { 'openldap-clients':
     ensure => installed
   }
   
-  package { 'dovecot-imapd':
-    ensure => installed
-  } ->
-
-  package { ['dovecot-ldap', 'dovecot-lmtpd', 'dovecot-sieve', 'dovecot-managesieved']:
+  package { ['dovecot','dovecot-pigeonhole']:
     ensure => installed,
   }
 
   package { 'postfix':
-    ensure => installed
-  }
-
-  package { 'postfix-ldap':
     ensure => installed
   }
 
@@ -29,6 +21,7 @@ class tsacha_mail::packages {
   
   package { 'opendkim':
     ensure => installed,
+    require => Exec['repo_changed_update']
   }
 
   package { 'rsync':

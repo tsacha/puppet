@@ -1,0 +1,6 @@
+<% if @hostname == "kerbin" %>
+SELINUX=disabled
+<% else %>
+SELINUX=enforcing
+<% end %>
+SELINUXTYPE=targeted

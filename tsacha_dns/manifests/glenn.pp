@@ -5,18 +5,18 @@ class tsacha_dns::glenn {
     File {
       ensure => present,
       owner => root,
-      group => bind,
-      mode => 0640,
+      group => named,
+      mode => '0640',
      }
 
-    file { "/var/lib/named/etc/bind/db.glenn-s.eu":
+    file { "/var/named/db.glenn-s.eu":
       source => "puppet:///modules/tsacha_dns/glenn-s.eu",
-      notify => Service['bind9']
+      notify => Service['named']
     }
 
-    file { "/var/lib/named/etc/bind/db.glenn.pro":
+    file { "/var/named/db.glenn.pro":
       source => "puppet:///modules/tsacha_dns/glenn.pro",
-      notify => Service['bind9']
+      notify => Service['named']
     }
 
 }

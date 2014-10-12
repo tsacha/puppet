@@ -1,6 +1,6 @@
 $TTL 180
 trs.io.                        IN SOA    trs.io. sacha.tremoureux.fr. (
-                                   2014072701     ; serial
+                                   2014090801     ; serial
                                    86400      ; refresh (1 day)
                                    3600       ; retry (1 hour)
                                    3600000    ; expire (5 weeks 6 days 16 hours)

@@ -1,38 +1,26 @@
 class tsacha_im::pkg {
-  package { 'prosody':
-    ensure => installed
-  } ->
-
-  user { "prosody":
-    ensure => present,
-    groups => sasl
-  }
-
-  package { 'ldap-utils':
+  package { "prosody":
     ensure => installed
   }
-
-  package { 'postgresql-client':
+  package { "lua-ldap":
     ensure => installed
   }
-
-  package { 'lua-dbi-sqlite3':
+  package { "cyrus-sasl":
     ensure => installed
   }
-
-  package { 'lua-dbi-postgresql':
+  package { "cyrus-sasl-plain":
     ensure => installed
   }
-  
-  package { 'lua-zlib':
+  package { "cyrus-sasl-ldap":
     ensure => installed
   }
-
-  package { 'lua-ldap':
+  package { "lua-cyrussasl":
+    ensure => installed
+  }  
+  package { "openldap-clients":
     ensure => installed
   }
-
-  package { ['lua-cyrussasl','libsasl2-modules-ldap','libsasl2-2','libsasl2-modules','sasl2-bin']:
+  package { "postgresql":
     ensure => installed
   }
 }

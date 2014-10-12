@@ -14,9 +14,9 @@ class tsacha_web::install {
 
   file { '/srv/web':
     ensure => directory,
-    owner => www-data, 
-    group => www-data,
-    mode => 0775
+    owner => apache, 
+    group => apache,
+    mode => '0775'
   }
 
   file { '/etc/apache2/sites-available/000-default.conf':
@@ -83,7 +83,7 @@ class tsacha_web::install {
     ensure => present,
     owner => root,
     group => root,
-    mode => 0640,
+    mode => '0640',
     require => Package['apache2'],
     notify => Service['apache2'],
     content => template('tsacha_web/apache2.conf.erb'),
@@ -93,13 +93,13 @@ class tsacha_web::install {
     ensure => present,
     owner => root,
     group => root,
-    mode => 0640,
+    mode => '0640',
     require => Package['apache2'],
     notify => Service['apache2'],
     content => template('tsacha_web/ports.conf.erb'),
   }
 
-  package { ['php5-common','libapache2-mod-php5','php5-cli','php5-intl','php5-mcrypt','php5-pgsql']:
+  package { ['php5-common','libapache2-mod-php5','php5-cli','php5-intl','php5-mcrypt','php5-pgsql','php5-gd']:
     ensure => installed,
     notify => Service['apache2'],
     require => Package['apache2']
@@ -109,5 +109,15 @@ class tsacha_web::install {
     command => "sed -i 's/;date.timezone =/date.timezone = UTC/g' /etc/php5/apache2/php.ini",
     unless => "grep UTC /etc/php5/apache2/php.ini",
     notify => Service['apache2']
+  }
+
+  file { "/etc/php5/apache2/php.ini":
+    ensure => present,
+    owner => root,
+    group => root,
+    mode => '0644',
+    require => Package['apache2'],
+    notify => Service['apache2'],
+    content => template('tsacha_web/php.ini.erb'),
   }
 }

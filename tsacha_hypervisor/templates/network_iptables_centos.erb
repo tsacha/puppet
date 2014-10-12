@@ -1,0 +1,4 @@
+#!/bin/bash
+if [ "$1" == "br-int" ]; then
+  /sbin/iptables-restore < /etc/iptables.up.rules
+fi

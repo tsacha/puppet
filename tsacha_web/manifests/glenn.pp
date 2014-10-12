@@ -6,7 +6,7 @@ class tsacha_web::glenn {
       ensure => present,
       owner => root,
       group => root,
-      mode => 0640,
+      mode => '0640',
       notify => File['/etc/apache2/sites-enabled/glenn.conf'],
       content => template('tsacha_web/glenn.erb'),
     }
@@ -19,9 +19,9 @@ class tsacha_web::glenn {
 
     file { "/srv/web/glenn":
       ensure => directory,
-      owner => www-data,
-      group => www-data,
-      mode => 0775
+      owner => apache,
+      group => apache,
+      mode => '0775'
     }
 
 }

@@ -1,70 +1,59 @@
-# See /usr/share/postfix/main.cf.dist for a commented, more complete version
-
-
-# Debian specific:  Specifying a file name will cause the first
-# line of that file to be used as the name.  The Debian default
-# is /etc/mailname.
-#myorigin = /etc/mailname
-
-smtpd_banner = $myhostname ESMTP $mail_name (Debian/GNU)
+queue_directory = /var/spool/postfix
+command_directory = /usr/sbin
+daemon_directory = /usr/libexec/postfix
+data_directory = /var/lib/postfix
+mail_owner = postfix
+inet_protocols = all
+unknown_local_recipient_reject_code = 550
+debug_peer_level = 2
+debugger_command =
+	 PATH=/bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin
+	 ddd $daemon_directory/$process_name $process_id & sleep 5
+sendmail_path = /usr/sbin/sendmail.postfix
+newaliases_path = /usr/bin/newaliases.postfix
+mailq_path = /usr/bin/mailq.postfix
+setgid_group = postdrop
+html_directory = no
+manpage_directory = /usr/share/man
+sample_directory = /usr/share/doc/postfix-2.10.1/samples
+readme_directory = /usr/share/doc/postfix-2.10.1/README_FILES
+smtpd_banner = $myhostname ESMTP $mail_name (CentOS)
 biff = no
-
-# Uncomment the next line to generate "delayed mail" warnings
-#delay_warning_time = 4h
-
 readme_directory = no
-
-# TLS parameters
 smtpd_tls_key_file = /srv/certs/mail.key
 smtpd_tls_cert_file = /srv/certs/mail.crt
 smtpd_tls_CAfile = /srv/certs/mail.pem
-
 smtpd_use_tls=yes
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
-
-# See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
-# information on enabling SSL in the smtp client.
-
 myhostname = mail.s.tremoureux.fr
 virtual_alias_maps = hash:/etc/postfix/virtual,proxy:ldap:/etc/postfix/ldap-virtual.cf
 alias_maps = hash:/etc/postfix/aliases
 alias_database = hash:/etc/postfix/aliases
-myorigin = mail.duna.trs.io
-mydestination = mail.s.tremoureux.fr, localhost.localdomain, localhost, tremoureux.fr, mail.oslo.s.tremoureux.fr, glenn.pro, glenn-s.eu, terres-creuses.fr, mail.duna.trs.io, mail.trs.io
+myorigin = <%= @fqdn %>
+mydestination = mail.s.tremoureux.fr, localhost.localdomain, localhost, tremoureux.fr, mail.oslo.s.tremoureux.fr, glenn.pro, glenn-s.eu, terres-creuses.fr, mail.duna.trs.io, mail.trs.io, mail.jool.trs.io
 relayhost = 
 mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
 mailbox_size_limit = 0
 recipient_delimiter = +
 inet_interfaces = all
-
 message_size_limit = 102400000 
-
-# DKIM 
-milter_default_action = accept
-milter_protocol = 6
-smtpd_milters = unix:/var/run/opendkim/opendkim.sock
-non_smtpd_milters = unix:/var/run/opendkim/opendkim.sock
-
-#enable SMTP auth for relaying
+smtpd_milters           = inet:127.0.0.1:8891
+non_smtpd_milters       = $smtpd_milters
+milter_default_action   = accept
+milter_protocol         = 2
 smtpd_sasl_auth_enable       = yes
 broken_sasl_auth_clients     = yes
 smtpd_sasl_type              = dovecot
 smtpd_sasl_path              = private/auth
-
-
-# deliver with Dovecot 
-
 mailbox_transport = lmtp:unix:private/dovecot-lmtp
 local_recipient_maps = 
-
 smtpd_sender_restrictions =
         permit_sasl_authenticated,
         permit_mynetworks,
         reject_non_fqdn_sender,
         reject_unknown_sender_domain,
         permit
-
 smtpd_recipient_restrictions =
         permit_sasl_authenticated,
         permit_mynetworks,
@@ -76,13 +65,5 @@ smtpd_recipient_restrictions =
         reject_invalid_helo_hostname,
         reject_unlisted_recipient,
         reject_unlisted_sender,
-        reject_non_fqdn_helo_hostname,
-        reject_rbl_client zen.spamhaus.org,
-        reject_rbl_client zombie.dnsbl.sorbs.net,
-        reject_rbl_client cbl.abuseat.org,
-        reject_rbl_client dsn.rfc-ignorant.org,
-        reject_rbl_client dul.dnsbl.sorbs.net,
-        reject_rbl_client sbl-xbl.spamhaus.org,
-        reject_rbl_client bl.spamcop.net,
-        reject_rbl_client ix.dnsbl.manitu.net,
-        reject_rbl_client combined.rbl.msrbl.net
+        reject_non_fqdn_helo_hostname
+

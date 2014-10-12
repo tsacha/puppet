@@ -18,15 +18,34 @@ class tsacha_mail::spamassassin {
   }
 
   exec { 'short-circuit':
-    command => "sed -i 's/# loadplugin Mail::SpamAssassin::Plugin::Shortcircuit/loadplugin Mail::SpamAssassin::Plugin::Shortcircuit/g' /etc/spamassassin/v320.pre",
-    onlyif => "grep '# loadplugin Mail::SpamAssassin::Plugin::Shortcircuit' /etc/spamassassin/v320.pre",
+    command => "sed -i 's/# loadplugin Mail::SpamAssassin::Plugin::Shortcircuit/loadplugin Mail::SpamAssassin::Plugin::Shortcircuit/g' /etc/mail/spamassassin/v320.pre",
+    onlyif => "grep '# loadplugin Mail::SpamAssassin::Plugin::Shortcircuit' /etc/mail/spamassassin/v320.pre",
     notify => Service['spamassassin']
   }
 
-  file { '/etc/spamassassin/local.cf':
+
+  group { "spamd":
+    ensure => present
+  }
+  user { "spamd":
+    ensure => present,
+    shell => "/bin/false",
+    home => "/var/log/spamassassin",
+    gid => "spamd",
+    require => Group["spamd"]
+  }
+  file { '/var/log/spamassassin':
+    ensure => directory,
+    mode => "0755",
+    owner => "spamd",
+    group => "spamd",
+    require => User["spamd"]
+  }
+  
+  file { '/etc/mail/spamassassin/local.cf':
     owner => root,
     group => root,
-    mode => 0644,
+    mode => '0644',
     ensure => present,
     content => template('tsacha_mail/spamassassin/local.cf.erb'),
     notify => Service['spamassassin']
@@ -35,7 +54,7 @@ class tsacha_mail::spamassassin {
   file { '/etc/cron.daily/spam-imap':
     owner => root,
     group => root,
-    mode => 0755,
+    mode => '0755',
     ensure => present,
     content => template('tsacha_mail/spamassassin/spam-imap.erb')
   }

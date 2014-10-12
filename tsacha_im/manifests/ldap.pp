@@ -5,17 +5,17 @@ class tsacha_im::ldap {
 
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
   
-  file { "/etc/ldap/ldap.conf":
+  file { "/etc/openldap/ldap.conf":
     owner => root,
     group => root,
-    mode => 0644,
+    mode => '0644',
     content => template('tsacha_ldap/ldap.conf.erb'),
   }
 
   file { "/opt/prosody.ldif":
     owner => root,
     group => root,
-    mode => 0644,
+    mode => '0644',
     source => "puppet:///modules/tsacha_im/prosody.ldif",
   }
 
@@ -24,7 +24,7 @@ class tsacha_im::ldap {
     command => "ldapadd -H ldaps://ldap.s.tremoureux.fr -x -D cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr -w '$admin_password' -f prosody.ldif",
     unless => "ldapsearch -H ldaps://ldap.s.tremoureux.fr/ -x -b cn=prosody,dc=ldap,dc=s,dc=tremoureux,dc=fr -D cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr -w '$admin_password' | grep 'dn: cn=prosody' && ldapsearch -H ldaps://ldap.s.tremoureux.fr/ -x -b ou=users,dc=ldap,dc=s,dc=tremoureux,dc=fr -D cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr -w '$admin_password' | grep 'dn: ou=users'",
     cwd => "/opt",
-    require => [File['/etc/ldap/ldap.conf'],File['/opt/prosody.ldif']]
+    require => [File['/etc/openldap/ldap.conf'],File['/opt/prosody.ldif']]
   }
   exec { "change-password-prosody-ldap":
     command => "ldappasswd -H ldaps://ldap.s.tremoureux.fr/ -x -w \"$admin_password\" -D cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr -s \"$ldap_im_password\" cn=prosody,dc=ldap,dc=s,dc=tremoureux,dc=fr",
@@ -35,32 +35,24 @@ class tsacha_im::ldap {
   file { "/etc/saslauthd.conf":
     owner => root,
     group => root,
-    mode => 0644,
+    mode => '0644',
     content => template('tsacha_im/saslauthd.conf.erb'),
     notify => Service['saslauthd']
   }
 
-  file { "/etc/default/saslauthd":
+  file { "/etc/sysconfig/saslauthd":
     owner => root,
     group => root,
-    mode => 0644,
+    mode => '0644',
     content => template('tsacha_im/default_saslauthd.erb'),
     notify => Service['saslauthd']
   }
 
-  file { "/etc/sasl":
+  file { "/etc/sasl2/prosody.conf":
     owner => root,
     group => root,
-    mode => 0644,
-    ensure => directory
-  }
-
-  file { "/etc/sasl/prosody.conf":
-    owner => root,
-    group => root,
-    mode => 0644,
+    mode => '0644',
     content => template('tsacha_im/sasl_prosody.conf.erb'),
-    require => File['/etc/sasl'],
     notify => Service['saslauthd']
   }
 

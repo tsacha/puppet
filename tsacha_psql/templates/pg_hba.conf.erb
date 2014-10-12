@@ -92,8 +92,8 @@ local   all             all                                     peer
 host    all             all             127.0.0.1/32            md5
 host    all             all             <%= @ip_address %>/<%= @cidr %>            md5
 host    all             all             <%= @ip6_address %>/<%= @cidr6 %>            md5
+host    all             all             <%= @ip6_sup_address %>/<%= @cidr6_sup %>            md5
 host    all             all             10.40.0.0/16 trust
-host    all             all             <%= @ip6_sup_address %>/<%= @cidr6_sup %> trust
 # IPv6 local connections:
 host    all             all             ::1/128                 md5
 #host    sup             sup             <%= @ip6sup %>/128      trust

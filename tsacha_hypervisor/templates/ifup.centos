@@ -1,0 +1,6 @@
+if [[ "$1" == "br-ex" ]]
+then
+  /sbin/ip -f inet6 route add <%= @gateway6 %> dev br-ex
+  /sbin/ip -f inet6 route add default via <%= @gateway6 %>
+  /sbin/ip -f inet6 neigh add proxy <%= @gateway6 %> dev br-ex
+fi

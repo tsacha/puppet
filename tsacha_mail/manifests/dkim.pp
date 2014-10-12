@@ -19,7 +19,7 @@ class tsacha_mail::dkim {
   file { $dkimfolders:
     owner   => opendkim,
     group   => opendkim,
-    mode    => 750,
+    mode    => '0750',
     ensure  => directory,
     notify  => Service['opendkim']
   }
@@ -41,7 +41,7 @@ class tsacha_mail::dkim {
     ensure => present,
     owner => opendkim,
     group => opendkim,
-    mode => 0640,
+    mode => '0640',
     notify => Service['opendkim']
   }
   
@@ -61,30 +61,9 @@ class tsacha_mail::dkim {
     content => template("tsacha_mail/dkim/opendkim.conf.erb"),
     owner => root,
     group => root,
-    mode => 0644
+    mode => '0644'
   }
-
   
-  file { ["/var/spool/postfix/var","/var/spool/postfix/var/run","/var/spool/postfix/var/run/opendkim"]:
-    ensure => directory,
-    owner => opendkim,
-    group => opendkim,
-    mode => 0775
-  } ->
-
-  file { "/etc/default/opendkim":
-    content => template("tsacha_mail/dkim/default_opendkim.conf.erb"),
-    owner => root,
-    group => root,
-    mode => 0644,
-    notify => Service['opendkim']
-  }
-
-  user { 'postfix':
-    groups => ["opendkim"]
-  }
-
-
   $dkim_conf.each |$title| {
     file { "/etc/opendkim/${title}":
       source => "puppet:///modules/tsacha_private/dkim/${title}",

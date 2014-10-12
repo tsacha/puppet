@@ -2,7 +2,7 @@ class tsacha_common::network {
   file { "/etc/resolv.conf":
     owner => root,
     group => root,
-    mode => 0644,
+    mode => '0644',
     ensure => present,
     content => template('tsacha_common/resolv.conf.erb'),
   }
@@ -12,7 +12,7 @@ class tsacha_common::network {
   file { "/etc/hosts":
     owner => root,
     group => root,
-    mode => 0644,
+    mode => '0644',
     ensure => present,
     content => template('tsacha_common/hosts.erb'),
   }

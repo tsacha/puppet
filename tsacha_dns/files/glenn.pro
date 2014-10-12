@@ -1,6 +1,6 @@
 $TTL 180
 glenn.pro.           IN SOA    glenn.pro. sacha.tremoureux.fr. (
-                         2014071501 ; serial
+                         2014101301 ; serial
                          86400      ; refresh (1 day)
                          3600       ; retry (1 hour)
                          3600000    ; expire (5 weeks 6 days 16 hours)
@@ -15,14 +15,14 @@ glenn.pro.           IN SOA    glenn.pro. sacha.tremoureux.fr. (
 
 
                      IN TXT                 "v=spf1 ip4:188.165.204.102 ip6:2001:41d0:2:9566:1::4 -all"
-                     MX             1       mail.s.tremoureux.fr.
+                     IN TXT                 "v=spf1 ip4:188.165.204.102 ip6:2001:41d0:2:9566:1::4 ip6:2001:41d0:2:a3be:1::4 ip4:188.165.216.190 -all"
+                     MX             1       mail.trs.io.
 
-www                  CNAME                  www.s.tremoureux.fr.
-autoconfig           CNAME                  www.s.tremoureux.fr.
+www                  CNAME                  web.trs.io.
+autoconfig           CNAME                  web.trs.io.
 
-im                   CNAME                  im.s.tremoureux.fr.
-mumble               CNAME                  duna.trs.io.
+im                   CNAME                  im.trs.io.
 
-_jabber._tcp         SRV     5 0 5269       im.s.tremoureux.fr.
-_xmpp-client._tcp    SRV     5 0 5222       im.s.tremoureux.fr.
-_xmpp-server._tcp    SRV     5 0 5269       im.s.tremoureux.fr.
+_jabber._tcp         SRV     5 0 5269       im.trs.io.
+_xmpp-client._tcp    SRV     5 0 5222       im.trs.io.
+_xmpp-server._tcp    SRV     5 0 5269       im.trs.io.

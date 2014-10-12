@@ -5,8 +5,8 @@ class tsacha_dns::reverse {
   File {
     ensure => present,
     owner => root,
-    group => bind,
-    mode => 0640,
+    group => named,
+    mode => '0640',
    }
 
   $hosts = hiera_hash('hosts')
@@ -16,14 +16,14 @@ class tsacha_dns::reverse {
       $host_address = $conf['ip']
       $host_address6 = $conf['ip6']
       if($hostname == "physical") {
-        file { "/var/lib/named/etc/bind/db.$key.reverse.v6":
+        file { "/var/named/db.$key.reverse.v6":
           content => template('tsacha_dns/reverse6.erb'),
-          notify => Service['bind9']
+          notify => Service['named']
         }
 
-        file { "/var/lib/named/etc/bind/db.$key.reverse.v4":
+        file { "/var/named/db.$key.reverse.v4":
           content => template('tsacha_dns/reverse4.erb'),
-          notify => Service['bind9']
+          notify => Service['named']
         }
       }
     }

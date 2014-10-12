@@ -20,35 +20,47 @@ class tsacha_psql::install {
 
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
+  package { 'postgresql-server':
+    ensure => installed
+  }
+
   package { 'postgresql':
     ensure => installed
   }
 
-  file { "/etc/postgresql/9.1/main/pg_hba.conf":
+  exec { 'initdb':
+    command => "initdb /var/lib/pgsql/data",
+    user => "postgres",
+    unless => "stat /var/lib/pgsql/data/postgresql.conf",
+    require => Package['postgresql']
+  }
+
+  file { "/var/lib/pgsql/data/pg_hba.conf":
     owner   => postgres,
     group   => postgres,
-    mode    => 0640,
+    mode    => '0640',
     ensure  => present,
     notify => Service['postgresql'],
-    require => Package['postgresql'],
+    require => Exec['initdb'],
     content => template('tsacha_psql/pg_hba.conf.erb'),
   }
 
 
-  file { "/etc/postgresql/9.1/main/postgresql.conf":
+  file { "/var/lib/pgsql/data/postgresql.conf":
     owner   => postgres,
     group   => postgres,
-    mode    => 0644,
+    mode    => '0644',
     ensure  => present,
     notify => Service['postgresql'],
-    require => Package['postgresql'],
+    require => Exec['initdb'],
     content => template('tsacha_psql/postgresql.conf.erb'),
   }
 
   exec { "change-password":
      command => "psql -U postgres -d postgres -c \"alter user postgres with password '$psql_password';\"",
      onlyif => "psql -U postgres -d postgres -c \"select passwd from pg_catalog.pg_shadow where usename='postgres' and passwd IS NOT NULL\" | grep rows",
-     user => postgres
+     user => postgres,
+     require => [Package['postgresql'],Package['postgresql-server']],
   }
   
   service { 'postgresql':

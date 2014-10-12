@@ -1,0 +1,13 @@
+[Unit]
+Description=<%= @cont %> Container
+
+[Service]
+Type=forking
+ExecStartPre=/srv/ip-neigh -n <%= @cont %> -i <%= @ip6 %> -d
+ExecStart=/usr/bin/lxc-start -d -n <%= @cont %>
+ExecStartPost=/srv/ip-neigh -n <%= @cont %> -i <%= @ip6 %>
+ExecStop=/usr/bin/lxc-stop -n <%= @cont %>
+ExecStopPost=/srv/ip-neigh -n <%= @cont %> -i <%= @ip6 %> -d
+
+[Install]
+WantedBy=multi-user.target

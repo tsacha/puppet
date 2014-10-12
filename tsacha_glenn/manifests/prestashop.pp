@@ -9,7 +9,7 @@ class tsacha_glenn::prestashop {
     ensure => present,
     owner => root,
     group => root,
-    mode => 0640,
+    mode => '0640',
     notify => File['/etc/apache2/sites-enabled/prestashop.conf'],
     content => template('tsacha_glenn/prestashop.erb'),
   }
@@ -19,7 +19,7 @@ class tsacha_glenn::prestashop {
     ensure => directory,
     owner => www-data,
     group => www-data,
-    mode => 0775
+    mode => '0775'
   }
 
   file { "/etc/apache2/sites-enabled/prestashop.conf":

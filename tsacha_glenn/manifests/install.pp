@@ -26,7 +26,7 @@ class tsacha_glenn::install {
     ensure => present,
     owner => root,
     group => root,
-    mode => 0644,
+    mode => '0644',
     content => template('tsacha_glenn/php.ini.erb'),
     notify => Service['apache2'],
     require => Package['libapache2-mod-php5'],

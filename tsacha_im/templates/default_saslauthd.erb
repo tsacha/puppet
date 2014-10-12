@@ -1,7 +1,3 @@
-START=yes
-DESC="SASL Authentification Daemon"
-NAME="saslauthd"
-MECHANISMS="ldap"
-MECH_OPTIONS=""
-THREADS=5
-OPTIONS="-c -m /var/run/saslauthd"
+SOCKETDIR=/run/saslauthd
+MECH=ldap
+FLAGS=""

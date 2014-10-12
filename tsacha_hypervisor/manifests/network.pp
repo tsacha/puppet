@@ -17,7 +17,7 @@ class tsacha_hypervisor::network {
   file { "/etc/sysctl.conf":
     owner => root,
     group => root,
-    mode => 0644,
+    mode => '0644',
     ensure => present,
     content => template('tsacha_hypervisor/sysctl.conf.erb'),
     notify => Exec['apply-sysctl']
@@ -69,6 +69,12 @@ class tsacha_hypervisor::network {
     require => Exec["create-extern-bridge"]
   }
 
+  exec { "up-intern-bridge":
+    command => "ip link set br-int up",
+    unless => "ip link show br-int | grep UP",
+    require => Exec["create-intern-bridge"]
+  }
+
  # Use bridge
   exec { "switch-bridge":
     command => "ip link set eth0 master br-ex; ip route del default via $gateway dev eth0; ip route add default via $gateway dev br-ex",
@@ -94,49 +100,52 @@ class tsacha_hypervisor::network {
     unless => "ip -6 route list | grep default | grep br-ex",
     require => [Exec["addr-extern-bridge"],Exec["up-extern-bridge"],Exec["route-gateway6"]]
   }
+  
 
-  if($operatingsystem == "Debian") {
-    file { "/etc/network/interfaces":
-      owner => root,
-      group => root,
-      mode => 0644,
-      ensure => present,
-      content => template('tsacha_hypervisor/interfaces.erb'),
-    }
+  exec { "proxy6":
+    command => "ip -f inet6 neigh add proxy $gateway6 dev br-ex",
+    unless => "ip -f inet6 neigh show proxy $gateway6 dev br-ex | grep proxy",
+    require => [Exec["addr-extern-bridge"],Exec["up-extern-bridge"],Exec["route-gateway6"]]
   }
-  if($operatingsystem == "CentOS") {
-    file { "/etc/sysconfig/network":
-      owner => root,
-      group => root,
-      mode => 0644,
-      ensure => present,
-      content => template('tsacha_hypervisor/network.centos'),
-    }
 
-    file { "/etc/sysconfig/network-scripts/ifcfg-eth0":
-      owner => root,
-      group => root,
-      mode => 0644,
-      ensure => present,
-      content => template('tsacha_hypervisor/ifcfg-eth0.centos'),
-    }
+  file { "/sbin/ifup-local":
+    owner => root,
+    group => root,
+    mode => '0755',
+    ensure => present,
+    content => template('tsacha_hypervisor/ifup.centos'),
+  }
 
-    file { "/etc/sysconfig/network-scripts/ifcfg-br-ex":
-      owner => root,
-      group => root,
-      mode => 0644,
-      ensure => present,
-      content => template('tsacha_hypervisor/ifcfg-br-ex.centos'),
-    }
+  file { "/etc/sysconfig/network":
+    owner => root,
+    group => root,
+    mode => '0644',
+    ensure => present,
+    content => template('tsacha_hypervisor/network.centos'),
+  }
 
-    file { "/etc/sysconfig/network-scripts/ifcfg-br-int":
-      owner => root,
-      group => root,
-      mode => 0644,
-      ensure => present,
-      content => template('tsacha_hypervisor/ifcfg-br-int.centos'),
-    }
+  file { "/etc/sysconfig/network-scripts/ifcfg-eth0":
+    owner => root,
+    group => root,
+    mode => '0644',
+    ensure => present,
+    content => template('tsacha_hypervisor/ifcfg-eth0.centos'),
+  }
 
+  file { "/etc/sysconfig/network-scripts/ifcfg-br-ex":
+    owner => root,
+    group => root,
+    mode => '0644',
+    ensure => present,
+    content => template('tsacha_hypervisor/ifcfg-br-ex.centos'),
+  }
+
+  file { "/etc/sysconfig/network-scripts/ifcfg-br-int":
+    owner => root,
+    group => root,
+    mode => '0644',
+    ensure => present,
+    content => template('tsacha_hypervisor/ifcfg-br-int.centos'),
   }
 
   $hosts.each |$key,$value| {

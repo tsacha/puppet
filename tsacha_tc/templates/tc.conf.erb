@@ -1,0 +1,9 @@
+<VirtualHost *:80>
+  ServerName terres-creuses.fr
+  ServerAlias terres-creuses.fr, www.terres-creuses.fr
+  DocumentRoot /srv/web/tc/
+  <Directory /srv/web/tc/>
+    AllowOverride All
+    Require all granted
+  </Directory>
+</VirtualHost>

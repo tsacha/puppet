@@ -26,7 +26,7 @@ class tsacha_mail::dovecot {
     ensure => directory,
     owner => vmail,
     group => vmail,
-    mode => 0660,
+    mode => '0660',
     require => User['vmail']
   }
 
@@ -34,15 +34,15 @@ class tsacha_mail::dovecot {
     ensure => directory,
     owner => dovecot,
     group => mail,
-    mode => 0550,
+    mode => '0550',
   }
 
   file { "/srv/certs/mail.crt":
     ensure => present,
     owner => dovecot,
     group => mail,
-    mode => 0440,
-    require => [File['/srv/certs'],Package['dovecot-imapd']],
+    mode => '0440',
+    require => [File['/srv/certs'],Package['dovecot']],
     source => "puppet:///modules/tsacha_private/global/s.tremoureux.fr.crt",
   }    
 
@@ -50,7 +50,7 @@ class tsacha_mail::dovecot {
     ensure => present,
     owner => dovecot,
     group => mail,
-    mode => 0440,
+    mode => '0440',
     require => File['/srv/certs'],
     source => "puppet:///modules/tsacha_private/global/s.tremoureux.fr.key",
   }    
@@ -59,8 +59,8 @@ class tsacha_mail::dovecot {
     ensure => present,
     owner => dovecot,
     group => mail,
-    mode => 0440,
-    require => [File['/srv/certs'],Package['dovecot-imapd']],
+    mode => '0440',
+    require => [File['/srv/certs'],Package['dovecot']],
     source => "puppet:///modules/tsacha_private/global/gandi.pem",
   }     
 
@@ -68,8 +68,8 @@ class tsacha_mail::dovecot {
     ensure => present,
     owner => dovecot,
     group => mail,
-    mode => 0440,
-    require => [File['/srv/certs'],Package['dovecot-imapd']],
+    mode => '0440',
+    require => [File['/srv/certs'],Package['dovecot']],
     source => "puppet:///modules/tsacha_private/global/gandi.pem",
   }     
 
@@ -99,8 +99,8 @@ class tsacha_mail::dovecot {
     ensure => present,
     owner => root,
     group => root,
-    mode => 0640,
-    require => Package['dovecot-imapd'],
+    mode => '0640',
+    require => Package['dovecot'],
     notify => Service['dovecot']
   }
 
@@ -115,7 +115,7 @@ class tsacha_mail::dovecot {
     ensure => present,
     owner => vmail,
     group => vmail,
-    mode => 0644
+    mode => '0644'
   }
 
 
@@ -123,7 +123,7 @@ class tsacha_mail::dovecot {
     ensure => present,
     owner => vmail,
     group => vmail,
-    mode => 0644,
+    mode => '0644',
     content => template("tsacha_mail/dovecot/head.sieve.erb")
   }
 

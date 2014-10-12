@@ -47,10 +47,15 @@ s2s_secure_auth = false
 
 pidfile = "/var/run/prosody/prosody.pid"
 
-authentication = "cyrus"
+authentication = "ldap"
 
-cyrus_application_name = "prosody"
-cyrus_service_name = "prosody"
+ldap_server = "ldap.s.tremoureux.fr";
+ldap_base = "ou=users,dc=ldap,dc=s,dc=tremoureux,dc=fr";
+ldap_rootdn = "cn=prosody,dc=ldap,dc=s,dc=tremoureux,dc=fr";
+ldap_password = "<%= @ldap_im_password %>";
+ldap_filter = "(&(objectClass=person)(mail=$user@$host))"
+ldap_tls = "true"
+
 
 storage = "sql"
 sql = {
@@ -76,6 +81,10 @@ VirtualHost "glenn.pro"
   }
 
 
+Component "pub.s.tremoureux.fr" "pubsub"
+admins = { "tremoureux.fr" }
+autocreate_on_subscribe = true
+autocreate_on_publish = true
 
 Component "im.s.tremoureux.fr" "muc"
   ssl = {

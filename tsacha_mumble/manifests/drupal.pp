@@ -9,7 +9,7 @@ class tsacha_glenn::drupal {
     ensure => present,
     owner => root,
     group => root,
-    mode => 0640,
+    mode => '0640',
     notify => File['/etc/apache2/sites-enabled/drupal.conf'],
     content => template('tsacha_glenn/drupal.erb'),
   }
@@ -24,7 +24,7 @@ class tsacha_glenn::drupal {
     ensure => directory,
     owner => www-data,
     group => www-data,
-    mode => 0755,
+    mode => '0755',
     require => File['/srv/web']
   }
 
@@ -32,7 +32,7 @@ class tsacha_glenn::drupal {
     ensure => present,
     owner => root,
     group => root,
-    mode => 0640,
+    mode => '0640',
     source => "puppet:///modules/tsacha_glenn/drupal-7.latest.tar.gz",
   }
 

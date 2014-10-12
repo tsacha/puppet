@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+timeout=6
+time=0
+delete=0
+while getopts ":n:i:d" opt; do
+  case $opt in
+    n  ) n=$OPTARG;;
+    i  ) i=$OPTARG;;
+    d  ) delete=1;;
+    \? ) echo "Invalid option: -$OPTARG" >&2; exit 1;;
+    :  ) echo "Option -$OPTARG requires an argument." >&2; exit 1;;
+  esac
+done
+
+if [ -z "$n" ]; then echo "-n must be specified"; exit 1; fi;
+if [ -z "$i" ]; then echo "-i must be specified"; exit 1; fi;
+
+if [[ delete -eq 1 ]]; then
+  ip -6 neigh del proxy $i dev br-ex 2> /dev/null
+  exit 0
+else
+  RET_IP=1
+  until [ ${RET_IP} -eq 0 ]; do
+    ipv6=$(lxc-info -n $n -i | grep -Eo "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))");
+    RET_IP=$?;
+
+    if [[ ! $RET_IP -eq 0 ]]; then
+      time=$(bc <<< "scale=1;$time+0.1")
+      sleep 0.1;
+      if [[ $(bc <<< "scale=1;$time < $timeout") -eq 0 ]]; then
+        exit 1;
+      fi;
+    fi;
+  done;
+
+  RET_IF=1
+  until [ ${RET_IF} -eq 0 ]; do
+    interfaces=$(lxc-info -n $n | grep -Eo "veth.*$" | xargs -I {} ip link show {} | grep "state UP" | wc -l)
+
+    if [[ $interfaces -eq 2 ]]; then
+      RET_IF=0;
+    else
+      RET_IF=1;
+    fi;
+
+    if [[ ! $RET_IF -eq 0 ]]; then
+      time=$(bc <<< "scale=1;$time+0.1")
+      sleep 0.1;
+      if [[ $(bc <<< "scale=1;$time < $timeout") -eq 0 ]]; then
+        exit 1;
+      fi;
+    fi;
+  done
+
+  RET_LOCAL=1
+  until [ ${RET_LOCAL} -eq 0 ]; do
+    ipv6local=$(lxc-attach -R -e -n $n ip a show eth1 scope link | grep -Eo "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))")
+    ping6 -c1 $ipv6local%br-ex > /dev/null 2> /dev/null
+    RET_LOCAL=$?
+
+    if [[ ! $RET_LOCAL -eq 0 ]]; then
+      time=$(bc <<< "scale=1;$time+0.1")
+      sleep 0.1;
+      if [[ $(bc <<< "scale=1;$time < $timeout") -eq 0 ]]; then
+        exit 1;
+      fi;
+    fi;
+  done;
+  sleep 1;
+  ip -6 neigh add proxy $i dev br-ex
+fi;
+

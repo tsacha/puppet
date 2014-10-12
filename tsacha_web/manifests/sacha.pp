@@ -6,7 +6,7 @@ class tsacha_web::sacha {
     ensure => present,
     owner => root,
     group => root,
-    mode => 0640,
+    mode => '0640',
     notify => File['/etc/apache2/sites-enabled/sacha.conf'],
     content => template('tsacha_web/sacha.erb'),
   }
@@ -14,7 +14,7 @@ class tsacha_web::sacha {
   file { '/root/.ssh/deploy-blog.pub':
     owner => root,
     group => root,
-    mode => 0644,
+    mode => '0644',
     ensure => present,
     source => "puppet:///modules/tsacha_private/web/deploy-blog.pub",
   }
@@ -22,7 +22,7 @@ class tsacha_web::sacha {
   file { '/root/.ssh/deploy-blog':
     owner => root,
     group => root,
-    mode => 0400,
+    mode => '0400',
     ensure => present,
     source => "puppet:///modules/tsacha_private/web/deploy-blog",
   } ->
@@ -30,7 +30,7 @@ class tsacha_web::sacha {
   file { '/root/.ssh/config':
     owner => root,
     group => root,
-    mode => 0644,
+    mode => '0644',
     ensure => present,
     source => "puppet:///modules/tsacha_private/web/ssh-config-blog",
   } ->

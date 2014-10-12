@@ -4,12 +4,12 @@ class tsacha_dns::tc {
   File {
     ensure => present,
     owner => root,
-    group => bind,
-    mode => 0640,
+    group => named,
+    mode => '0640',
    }
 
-  file { "/var/lib/named/etc/bind/db.terres-creuses.fr":
+  file { "/var/named/db.terres-creuses.fr":
     source => "puppet:///modules/tsacha_dns/terres-creuses.fr",
-    notify => Service['bind9']
+    notify => Service['named']
   }
 }

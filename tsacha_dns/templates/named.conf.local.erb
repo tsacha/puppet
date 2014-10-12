@@ -1,28 +1,28 @@
 zone "tremoureux.fr" {
      type master;
-     file "/etc/bind/db.tremoureux.fr.signed";   
+     file "db.tremoureux.fr.signed";   
      allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
 
 zone "trs.io" {
      type master;
-     file "/etc/bind/db.trs.io";   
+     file "db.trs.io";   
      allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
 
 zone "glenn-s.eu" {
      type master;
-     file "/etc/bind/db.glenn-s.eu";
+     file "db.glenn-s.eu";
      allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
 zone "glenn.pro" {
      type master;
-     file "/etc/bind/db.glenn.pro";
+     file "db.glenn.pro";
      allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
 zone "terres-creuses.fr" {
      type master;
-     file "/etc/bind/db.terres-creuses.fr";
+     file "db.terres-creuses.fr";
      allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
 
@@ -35,13 +35,13 @@ zone "terres-creuses.fr" {
 -%>
 zone "<%= revip %>." {
   type master;
-  file "/etc/bind/db.<%= key %>.reverse.v4";
+  file "db.<%= key %>.reverse.v4";
   allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
 
 zone "<%= revip6 %>." {
   type master;
-  file "/etc/bind/db.<%= key %>.reverse.v6";
+  file "db.<%= key %>.reverse.v6";
   allow-transfer { 2001:41d0:2:9566:1::2; 2001:41d0:2:a3be:1::2; };
 };
 <%-

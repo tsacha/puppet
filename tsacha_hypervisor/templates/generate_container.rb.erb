@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 require 'optparse'
-require 'libvirt'
 require 'fileutils'
 require 'net/http'
 require 'etc'
@@ -9,7 +8,6 @@ require 'facter'
 options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: generate_container.rb [options]"
-  options[:version] = "wheezy"
 
   opts.on("--fqdn [FQDN]", "FQDN") do |f|
     options[:fqdn] = f
@@ -39,7 +37,7 @@ OptionParser.new do |opts|
     options[:gateway6] = g6
   end
 
-  opts.on("--version [VERSION]", "Debian version") do |v|
+  opts.on("--version [VERSION]", "CentOS version") do |v|
     options[:version] = v
   end
 
@@ -55,7 +53,7 @@ OptionParser.new do |opts|
     options[:ip6puppet] = p6h
   end
 
-  opts.on("--dns [DNS SERVER]", "Debian Version") do |dn|
+  opts.on("--dns [DNS SERVER]", "DNS Server") do |dn|
     options[:dns] = dn
   end
 
@@ -65,50 +63,24 @@ OptionParser.new do |opts|
 
 end.parse!
 
+ip_split = options[:ip].split(".")
+mac = "52:54:00:#{options[:idhypervisor]}0:"+ip_split[2].to_i.to_s(16).rjust(2,'0')+":"+ip_split[3].to_i.to_s(16).rjust(2,'0')
+mac6 = "52:54:00:#{options[:idhypervisor]}1:"+ip_split[2].to_i.to_s(16).rjust(2,'0')+":"+ip_split[3].to_i.to_s(16).rjust(2,'0')
 
 Dir.chdir('/srv')
 
-macs = Array.new
-
-conn = Libvirt::open("lxc:///")
-
-# Domaines actifs
-conn.list_domains.each do |domid|
-  dom = conn.lookup_domain_by_id(domid)
-  dom.xml_desc.each_line do |line|
-    next if not line.match(/^( )*\<mac address/)
-    macs << line.gsub(/^( )*\<mac address=\'(.+)\'\/\>/,'\2')[0...-1]
-  end
+if options[:version].nil? then
+  options[:version] = "7"
 end
 
-# Domaines inactifs
-conn.list_defined_domains.each do |domname|
-  dom = conn.lookup_domain_by_name(domname)
-  dom.xml_desc.each_line do |line|
-    next if not line.match(/^( )*\<mac address/)
-    macs << line.gsub(/^( )*\<mac address=\'(.+)\'\/\>/,'\2')[0...-1]
-  end
-end
-
-begin
-  mac = "52:54:00:#{options[:idhypervisor]}0:"+(1..2).map{"%0.2X"%rand(256)}.join(":")
-end while macs.include?(mac)
-
-begin
-  mac6 = "52:54:00:#{options[:idhypervisor]}1:"+(1..2).map{"%0.2X"%rand(256)}.join(":")
-end while macs.include?(mac)
-
-
-if not File.exist?("/srv/#{options[:version]}.tar") then
-  if options[:version] == "testing" then
-    system("debootstrap --verbose --variant=minbase --include ifupdown,iputils-ping,locales,libui-dialog-perl,dialog,netbase,net-tools,iproute,openssl,openssh-server,apt-utils,vim,emacs24-nox,ruby,wget,curl,aptitude,git,ca-certificates --arch amd64 #{options[:version]} tmprootfs http://ftp.be.debian.org/debian")
-  elsif options[:version] == "stable" then
-    system("debootstrap --verbose --variant=minbase --include ifupdown,iputils-ping,locales,libui-dialog-perl,dialog,netbase,net-tools,iproute,openssl,openssh-server,apt-utils,vim,emacs23-nox,ruby,wget,curl,aptitude,git,ca-certificates --arch amd64 #{options[:version]} tmprootfs http://ftp.be.debian.org/debian")
-  end
+if not File.exist?("/srv/centos#{options[:version]}.tar") then
+  system("yum -y --installroot=/srv/tmprootfs --releasever=#{options[:version]} --nogpg install systemd passwd yum centos-release vim-minimal openssh-server procps-ng iputils emacs-nox wget curl git")
+  system("yum -y --installroot=/srv/tmprootfs --releasever=#{options[:version]} --nogpg groupinstall 'Minimal Install'")
+  system("yum -y --installroot=/srv/tmprootfs --releasever=#{options[:version]} --nogpg groupinstall 'Development Tools'")
   Dir.chdir("tmprootfs")
-  system("tar cvf #{options[:version]}.tar --exclude '#{options[:version]}.tar' .")
+  system("tar cvf centos#{options[:version]}.tar --exclude 'centos#{options[:version]}.tar' .")
   Dir.chdir("..")
-  File.rename("tmprootfs/#{options[:version]}.tar","#{options[:version]}.tar")
+  File.rename("tmprootfs/centos#{options[:version]}.tar","centos#{options[:version]}.tar")
   FileUtils.rm_rf("tmprootfs")
 end
 
@@ -118,7 +90,7 @@ Dir.chdir('/var/lib/lxc')
 if not File.exists?(options[:hostname])
   FileUtils.mkdir_p("/var/lib/lxc/"+options[:hostname]+"/rootfs")
   Dir.chdir("/var/lib/lxc/"+options[:hostname]+"/rootfs")
-  system("tar xvf /srv/#{options[:version]}.tar")
+  system("tar xvf /srv/centos#{options[:version]}.tar")
 end
 
 pubkey = File.read("/root/.ssh/id_ecdsa.pub")
@@ -126,30 +98,15 @@ pubkey = File.read("/root/.ssh/id_ecdsa.pub")
 chroot = Process.fork do
   Dir.chdir("/")
   Dir.chroot("/var/lib/lxc/"+options[:hostname]+"/rootfs")
-  filename = "/etc/inittab"
-
-  outdata = File.read(filename).gsub(/^([2-6]:23)/, '#\1')
-  outdata = outdata.gsub(/^(p[fno])/, '#\1')
+  filename = "/etc/sysconfig/network"
+  outdata = "NETWORKING=yes\n"
   
-  File.open(filename, 'w') do |out|
+  File.open(filename, 'w+') do |out|
     out << outdata
   end  
-  
-  filename = "/etc/locale.gen"
-  outdata = File.read(filename).gsub(/^(# en_GB\.UTF-8)/, 'en_GB.UTF-8')
-  outdata = outdata.gsub(/^(# en_GB\.ISO-8859-15)/, 'en_GB.ISO-8859-15')
-  outdata = outdata.gsub(/^(# fr_FR\.UTF-8)/, 'fr_FR.UTF-8')
-  outdata = outdata.gsub(/^(# fr_FR@euro)/, 'fr_FR@euro')
-  
-  File.open(filename, 'w') do |out|
-    out << outdata
-  end  
-  
-  
-  system("/usr/sbin/locale-gen en_GB.UTF-8")
   
   outdata = "#{options[:fqdn]}\n"
-  File.open("/etc/hostname", 'w') do |out|
+  File.open("/etc/hostname", 'w+') do |out|
     out << outdata
   end
 
@@ -164,38 +121,58 @@ net.ipv6.conf.eth1.accept_dad = 0
 EOF
 
 
-  File.open("/etc/sysctl.conf", 'w') do |out|
+  File.open("/etc/sysctl.conf", 'w+') do |out|
     out << outdata
   end
 
   outdata = <<EOF
-auto lo
-iface lo inet loopback
-
-auto eth0
-iface eth0 inet static
-address #{options[:ip]}
-netmask #{options[:cidr]}
-gateway #{options[:gateway]}
-
-auto eth1
-iface eth1 inet6 manual
-  pre-up /bin/mount -o remount,rw /proc/sys && sysctl -p
-  up ip -6 a a #{options[:ip6]}/#{options[:cidr6]} dev eth1
-  up ip -6 r a #{options[:gateway6]} dev eth1
-  up ip -6 r a default via #{options[:gateway6]} dev eth1
+DEVICE=eth0
+TYPE=Ethernet
+IPADDR=#{options[:ip]}
+PREFIX=#{options[:cidr]}
+GATEWAY=#{options[:gateway]}
+ONBOOT=yes
+BOOTPROTO=none
+NM_CONTROLLED=no
+DELAY=0
 EOF
-  File.open("/etc/network/interfaces", 'w') do |out|
+  File.open("/etc/sysconfig/network-scripts/ifcfg-eth0", 'w+') do |out|
     out << outdata
  end
-  
+
+  outdata = <<EOF
+DEVICE=eth1
+TYPE=Ethernet
+IPV6INIT=yes
+IPV6_AUTOCONF=no
+IPV6ADDR=#{options[:ip6]}/#{options[:cidr6]}
+ONBOOT=yes
+BOOTPROTO=none
+NM_CONTROLLED=no
+DELAY=0
+EOF
+  File.open("/etc/sysconfig/network-scripts/ifcfg-eth1", 'w+') do |out|
+    out << outdata
+ end
+
+  outdata = <<EOF
+if [[ "$1" == "eth1" ]]
+then
+  /sbin/ip -f inet6 route add #{options[:gateway6]} dev eth1
+  /sbin/ip -f inet6 route add default via #{options[:gateway6]}
+fi
+EOF
+  File.open("/sbin/ifup-local", 'w+') do |out|
+    out << outdata
+ end
+
+  File.chmod(0755,"/sbin/ifup-local")  
   
   outdata = <<EOF
 nameserver #{options[:dns]}
-nameserver 8.8.8.8
 EOF
   
-  File.open("/etc/resolv.conf", 'w') do |out|
+  File.open("/etc/resolv.conf", 'w+') do |out|
     out << outdata
   end
   
@@ -211,145 +188,120 @@ ff02::1         ip6-allnodes
 ff02::2         ip6-allrouters
 EOF
   
-  File.open("/etc/hosts", 'w') do |out|
+  File.open("/etc/hosts", 'w+') do |out|
     out << outdata
-  end
-
-
-  if options[:version] == "testing" then
-    filename = "/etc/pam.d/sshd"
-    outdata = File.read(filename)
-    outdata.gsub!(/^session    required     pam_loginuid.so/, "# session    required     pam_loginuid.so")
-
-    File.open(filename, 'w') do |out|
-      out << outdata
-    end
   end
 
   Dir.mkdir("/root/.ssh") if not File.directory?("/root/.ssh")
 
   filename = "/root/.ssh/authorized_keys"
-  File.open(filename, "w") do |out|
+  File.open(filename, "w+") do |out|
     out << pubkey
   end
-      
 
-  system("/usr/sbin/update-rc.d -f umountfs remove 2> /dev/null")
-  system("/usr/sbin/update-rc.d -f hwclock.sh remove 2> /dev/null")
-  system("/usr/sbin/update-rc.d -f hwclockfirst.sh remove 2> /dev/null")
-
-  outdata = <<EOF
-# puppetlabs
-deb  http://apt.puppetlabs.com #{options[:version]} main
-deb-src  http://apt.puppetlabs.com #{options[:version]} main 
-EOF
-  File.open("/etc/apt/sources.list.d/puppetlabs.list", 'w') do |out|
-    out << outdata
-  end
+  FileUtils.rm('/etc/systemd/system/multi-user.target.wants/auditd.service')
+  FileUtils.rm('/etc/systemd/system/sockets.target.wants/avahi-daemon.socket')
+  FileUtils.rm('/etc/systemd/system/multi-user.target.wants/avahi-daemon.service')
+  FileUtils.rm('/etc/systemd/system/dbus-org.freedesktop.Avahi.service')
+  FileUtils.rm('/etc/systemd/system/multi-user.target.wants/kdump.service')
+  FileUtils.rm('/usr/lib/systemd/system/getty.target')
+  FileUtils.rm("/etc/systemd/system/getty.target.wants/getty@tty1.service")
+  FileUtils.symlink("/dev/null","/etc/systemd/system/getty.target.wants/getty@tty1.service")
+  FileUtils.symlink("/usr/lib/systemd/system/poweroff.target","/etc/systemd/system/sigpwr.target")
+  FileUtils.symlink("/dev/null","/etc/systemd/system/systemd-udevd.service")
+  FileUtils.symlink("/dev/null","/etc/systemd/system/systemd-udevd-control.socket")
+  FileUtils.symlink("/dev/null","/etc/systemd/system/systemd-udevd-kernel.socket")
+  FileUtils.symlink("/dev/null","/etc/systemd/system/proc-sys-fs-binfmt_misc.automount")
   
-  outdata = <<EOF
-# puppetlabs-dep
-deb  http://apt.puppetlabs.com #{options[:version]} dependencies
-deb-src  http://apt.puppetlabs.com #{options[:version]} dependencies
-EOF
-  File.open("/etc/apt/sources.list.d/puppetlabs-dep.list", 'w') do |out|
-    out << outdata
-  end
-  
-  outdata = Net::HTTP.get('apt.puppetlabs.com', '/pubkey.gpg')
-  File.open("/tmp/pubkey.gpg", 'w') do |out|
-    out << outdata
-  end
-  system("apt-key add /tmp/pubkey.gpg")
-  system("apt-get update") if not File.file?("/etc/puppet/puppet.conf")
-  system("apt-get install -y puppet") if not File.file?("/etc/puppet/puppet.conf")
+  system("rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm")
+  system("yum -y install puppet")
 
   filename = "/etc/puppet/puppet.conf"
   outdata = File.read(filename)
   
-  outdata.gsub!(/\[master\]/, "server=#{options[:puppet]}\ncertname=#{options[:fqdn]}\n[master]") if not outdata.include?("certname")
+  outdata.gsub!(/\[agent\]/, "[agent]\nserver=#{options[:puppet]}\ncertname=#{options[:fqdn]}") if not outdata.include?("certname")
   
-  File.open(filename, 'w') do |out|
+  File.open(filename, 'w+') do |out|
     out << outdata
   end
 
   outdata = <<EOF
 START=no
 DAEMON_OPTS=""
-export LANG=en_GB.UTF-8
+export LANG=en_US.UTF-8
 EOF
-  File.open("/etc/default/puppet", 'w') do |out|
+  File.open("/etc/default/puppet", 'w+') do |out|
     out << outdata
   end
 end
 
 Process.wait
-ram = `free`.split("\n")[1].split(" ")[1]
-cpu = Facter.value(:processorcount)
+
 outdata = <<EOF
-<domain type='lxc'>
-  <name>#{options[:hostname]}</name>
-  <memory unit='KiB'>#{ram}</memory>
-  <currentMemory unit='KiB'>#{ram}</currentMemory>
-  <vcpu placement='static'>#{cpu}</vcpu>
-  <cputune>
-    <shares>100</shares>
-  </cputune>
-  <resource>
-    <partition>/machine</partition>
-  </resource>
-  <os>
-    <type arch='x86_64'>exe</type>
-    <init>/sbin/init</init>
-  </os>
-  <clock offset='utc'/>
-  <on_poweroff>destroy</on_poweroff>
-  <on_reboot>restart</on_reboot>
-  <on_crash>destroy</on_crash>
-  <devices>
-    <emulator>/usr/lib/libvirt/libvirt_lxc</emulator>
-    <filesystem type='mount' accessmode='passthrough'>
-      <source dir='/var/lib/lxc/#{options[:hostname]}/rootfs'/>
-      <target dir='/'/>
-    </filesystem>
+# For additional config options, please look at lxc.container.conf(5)
+lxc.network.type = veth
+lxc.network.flags = up
+lxc.network.link = br-int
+lxc.network.hwaddr = #{mac}
+lxc.network.type = veth
+lxc.network.flags = up
+lxc.network.link = br-ex
+lxc.network.hwaddr = #{mac6}
+lxc.rootfs = /var/lib/lxc/#{options[:hostname]}/rootfs
 
-    <interface type='bridge'>
-      <mac address='#{mac}'/>
-      <source bridge='br-int'/>
-    </interface>
+lxc.arch = x86_64
+lxc.utsname = #{options[:fqdn]}
 
-    <interface type='bridge'>
-      <mac address='#{mac6}'/>
-      <source bridge='br-ex'/>
-    </interface>
+lxc.autodev = 1
+
+lxc.devttydir = lxc
+lxc.tty = 4
+lxc.pts = 1024
+lxc.kmsg = 0
+
+
+# Mount entries
+lxc.mount.auto = proc:mixed sys:ro
+
+# Ensure hostname is changed on clone
+lxc.hook.clone = /usr/share/lxc/hooks/clonehostname
+
+
+# hostname(1).
+# lxc.cap.drop = sys_admin
+# lxc.cap.drop = net_raw          # breaks dhcp/ping
+# lxc.cap.drop = setgid           # breaks login (initgroups/setgroups)
+# lxc.cap.drop = dac_read_search  # breaks login (pam unix_chkpwd)
+# lxc.cap.drop = setuid           # breaks sshd,nfs statd
+# lxc.cap.drop = audit_control    # breaks sshd (set_loginuid failed)
+# lxc.cap.drop = audit_write
+# lxc.cap.drop = setpcap          # big big login delays in Fedora 20 systemd
+#
+lxc.cap.drop = mac_admin mac_override
+# lxc.cap.drop = setfcap
+lxc.cap.drop = sys_module sys_nice sys_pacct
+lxc.cap.drop = sys_rawio sys_time
+
+# Control Group devices: all denied except those whitelisted
+lxc.cgroup.devices.deny = a
+# Allow any mknod (but not reading/writing the node)
+lxc.cgroup.devices.allow = c *:* m
+lxc.cgroup.devices.allow = b *:* m
+lxc.cgroup.devices.allow = c 1:3 rwm    # /dev/null
+lxc.cgroup.devices.allow = c 1:5 rwm    # /dev/zero
+lxc.cgroup.devices.allow = c 1:7 rwm    # /dev/full
+lxc.cgroup.devices.allow = c 5:0 rwm    # /dev/tty
+lxc.cgroup.devices.allow = c 1:8 rwm    # /dev/random
+lxc.cgroup.devices.allow = c 1:9 rwm    # /dev/urandom
+lxc.cgroup.devices.allow = c 136:* rwm  # /dev/tty[1-4] ptys and lxc console
+lxc.cgroup.devices.allow = c 5:2 rwm    # /dev/ptmx pty master
+
+# Blacklist some syscalls which are not safe in privileged
+# containers
+lxc.seccomp = /usr/share/lxc/config/common.seccomp
 EOF
 
-if options[:hostname] == "vpn"
-  outdata += <<EOF
-    <hostdev mode='capabilities' type='misc'>
-      <source>
-        <char>/dev/net/tun</char>
-      </source>    
-    </hostdev>
-
-    <filesystem type='mount' accessmode='passthrough'>
-      <source dir='/proc/sys/net'/>
-      <target dir='/proc/sys/net'/>
-    </filesystem>
-EOF
-end
-
-outdata += <<EOF
-    <console type='pty'>
-    </console>
-  </devices>
-</domain>
-EOF
-
-filename = "/var/lib/lxc/#{options[:hostname]}/config.xml"
+filename = "/var/lib/lxc/#{options[:hostname]}/config"
 File.open(filename, 'w') do |out|
-  out << outdata
+out << outdata
 end
-
-conn = Libvirt::open("lxc:///")
-conn.define_domain_xml(outdata) if not conn.list_defined_domains.include?(options[:hostname])

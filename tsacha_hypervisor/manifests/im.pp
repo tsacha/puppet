@@ -24,7 +24,7 @@ class tsacha_hypervisor::im {
   Exec { path => [ "/srv", "/opt/libvirt/bin", "/opt/libvirt/sbin", "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
   exec { "generate-im-container":
-    command => "ruby /srv/generate_container.rb --fqdn '$im_fqdn' --ip $im_ip --cidr $im_cidr --gateway $im_gateway --ip6 $im_ip6 --cidr6 $im_cidr6 --gateway6 $im_gateway6 --dns 8.8.8.8 --puppet $im_puppet --ippuppet $im_ip_puppet --ip6puppet $im_ip6_puppet --idhypervisor $idhypervisor --version stable",
+    command => "ruby /srv/generate_container.rb --fqdn '$im_fqdn' --ip $im_ip --cidr $im_cidr --gateway $im_gateway --ip6 $im_ip6 --cidr6 $im_cidr6 --gateway6 $im_gateway6 --dns 8.8.8.8 --puppet $im_puppet --ippuppet $im_ip_puppet --ip6puppet $im_ip6_puppet --idhypervisor $idhypervisor --version testing",
     unless => "virsh list --all | grep im",
     timeout => 500
   } ->
