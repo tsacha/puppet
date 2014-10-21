@@ -9,10 +9,6 @@ class tsacha_dns::install {
     notify => Service['named']
   } ->
   
-  package { 'bind-utils':
-    ensure => installed
-  }
-
   file { "/etc/named.conf":
     owner => root,
     group => named,

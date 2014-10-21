@@ -1,0 +1,13 @@
+[Unit]
+Description=RabbitMQ broker
+After=syslog.target network.target
+
+[Service]
+User=rabbitmq
+Group=rabbitmq
+WorkingDirectory=/opt/rabbitmq/var/lib/rabbitmq
+ExecStart=/opt/rabbitmq/sbin/rabbitmq-server
+ExecStop=/opt/rabbitmq/sbin/rabbitmqctl stop
+
+[Install]
+WantedBy=multi-user.target

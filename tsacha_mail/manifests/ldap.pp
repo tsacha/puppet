@@ -108,6 +108,21 @@ class tsacha_mail::ldap {
     source => "puppet:///modules/tsacha_private/mail/pascale.ldif",
   }
 
+
+  file { "/opt/system.ldif":
+    owner => root,
+    group => root,
+    mode => '0644',
+    source => "puppet:///modules/tsacha_private/mail/system.ldif",
+  }
+
+  exec { "system-ldap":
+    command => "ldapadd -H ldap://ldap.$hypervisor.trs.io -x -D cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr -w '$admin_password' -f system.ldif",
+    unless => "ldapsearch -H ldap://ldap.$hypervisor.trs.io/ -x -b uid=system,ou=users,dc=ldap,dc=s,dc=tremoureux,dc=fr -D cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr -w '$admin_password' | grep 'dn: uid=system,ou=users'",
+    require => [File['/etc/openldap/ldap.conf'],File['/opt/system.ldif'],Exec['dovecot-ldap']],
+    cwd => "/opt"
+  }  
+
   exec { "pascale-ldap":
     command => "ldapadd -H ldap://ldap.$hypervisor.trs.io -x -D cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr -w '$admin_password' -f pascale.ldif",
     unless => "ldapsearch -H ldap://ldap.$hypervisor.trs.io/ -x -b uid=pascale,ou=users,dc=ldap,dc=s,dc=tremoureux,dc=fr -D cn=admin,dc=ldap,dc=s,dc=tremoureux,dc=fr -w '$admin_password' | grep 'dn: uid=pascale,ou=users'",

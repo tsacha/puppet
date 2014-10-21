@@ -12,9 +12,6 @@ class tsacha_hypervisor::secu {
   $cidr6 = $hosts[$hostname]['physical']['cidr6']
   $gateway6 = $hosts[$hostname]['physical']['gateway6']
   
-  if($hostname == "kerbin") {
-  }
-
   if($hostname == "duna") {
     $dns_ip = $hosts[$hostname]['dns']['ip']
     $ldap_ip = $hosts['jool']['ldap']['ip']

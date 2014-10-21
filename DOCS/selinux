@@ -1,0 +1,24 @@
+# Canopsis + Nginx
+semanage port -a -t http_port_t -p tcp 8085
+# Nginx
+chcon -R -t  httpd_config_t /srv/certs
+# Apache SSL
+semanage port -a -t http_port_t -p tcp 4443
+
+# When Puppet Master is used with Passenger, it is launched as httpd user.
+# Some adjustements are required to be compatible with SELinux.
+semanage port -m -t http_port_t -p tcp 8140
+semodule -i puppet_passenger.pp
+
+
+# To create puppet_passenger.pp
+setenforce 0
+echo "" > audit.log
+systemctl restart httpd
+puppet agent -t
+ausearch -m avc -ts recent | audit2allow -m puppet_passenger > puppet_passenger.te
+# We can edit puppet_passenger.te to remove rules irrelevant to Passenger.
+checkmodule -M -m -o puppet_passenger.mod puppet_passenger.te
+semodule_package -o puppet_passenger.pp -m puppet_passenger.mod
+semodule -i puppet_passenger.pp
+

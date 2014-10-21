@@ -65,6 +65,11 @@ class tsacha_psql::install {
   
   service { 'postgresql':
     ensure => running
-  }
+  } ->
+
+  exec { 'enable-postgresql':
+    command => "systemctl enable postgresql",
+    unless => "systemctl is-enabled postgresql",
+  }    
 
 }

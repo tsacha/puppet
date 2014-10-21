@@ -2,6 +2,10 @@ class tsacha_common::utils {
 
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
+  package { 'bridge-utils':
+    ensure => installed
+  }
+
   package { 'emacs-nox':
     ensure => installed
   }
@@ -53,6 +57,15 @@ class tsacha_common::utils {
 
   package { 'rdiff-backup':
     ensure => installed
+  }
+
+  package { 'bind-utils':
+    ensure => installed
+  }
+
+  exec { 'refresh-units':
+    command => "systemctl daemon-reload",
+    refreshonly => true,
   }
 
 }

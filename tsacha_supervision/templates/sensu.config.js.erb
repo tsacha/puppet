@@ -1,0 +1,32 @@
+{
+  "rabbitmq": {
+    "ssl": {
+      "private_key_file": "/etc/sensu/ssl/key.pem",
+      "cert_chain_file": "/etc/sensu/ssl/cert.pem"
+    },
+    "port": "5671",
+    "host": "kerbin.trs.io",
+    "user": "sensu",
+    "password": "<%= @sensu_passwd %>",
+    "vhost": "/sensu"
+  },
+  "redis": {
+    "host": "localhost",
+    "port": 6379
+  },
+  "api": {
+    "host": "<%= hosts['kerbin']['physical']['ip6'] %>",
+    "port": 4567
+  },
+  "checks": {
+    "test": {
+      "type": "metric",
+      "command": "echo -n OK",
+      "subscribers": [
+        "test-sensu"
+      ],
+      "handlers": ["flapjack"],
+      "interval": 60
+    }
+  }
+}

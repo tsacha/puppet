@@ -19,7 +19,7 @@ class tsacha_mail::dovecot {
      uid => '5000',
      gid => '5000',
      ensure => 'present',
-     require => Group ['vmail']
+     require => Group['vmail']
   }
 
   file { "/srv/mail":
