@@ -60,6 +60,14 @@ class tsacha_common::repo {
     notify => Exec['repo_changed_update']
   }
 
+  file { "/etc/yum.repos.d/fedora.repo":
+    ensure => present,
+    owner => root,
+    group => root,
+    mode => '0644',
+    content => template('tsacha_common/fedora.repo.erb'),
+  }  
+
   file { "/etc/yum.repos.d/prosody.repo":
     ensure => present,
     owner => root,

@@ -2,6 +2,12 @@ class tsacha_dns::tremoureux {
 
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
+  $hosts = hiera_hash('hosts')
+  $fronts = hiera_hash('fronts')
+  
+  $ip_lb = $hosts['dres']['physical']['ip']
+  $ip6_lb = $hosts['dres']['lb']['ip6']
+
   File {
     ensure => present,
     owner => root,

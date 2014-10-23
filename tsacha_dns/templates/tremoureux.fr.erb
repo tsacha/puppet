@@ -1,54 +1,46 @@
+<%-
+x = DateTime.now
+serial = x.strftime("%Y%m%d")+(((x.strftime("%H").to_i*3600+x.strftime("%M").to_i*60+x.strftime("%S").to_i)/864).to_s.rjust(2,'0'))
+-%>
+
 $TTL 180
 tremoureux.fr.                 IN SOA    tremoureux.fr. sacha.tremoureux.fr. (
-                                   2014100301 ; serial
+                                   <%= serial %> ; serial
                                    86400      ; refresh (1 day)
                                    3600       ; retry (1 hour)
                                    3600000    ; expire (5 weeks 6 days 16 hours)
                                    300        ; minimum (5 minutes)
                                )
+<%- 
+@hosts.each do |key,value|
+  value.each do |hostname,conf|
+    if hostname == "dns" then
+%>
+                               NS                     <%= conf['fqdn'] %>.<%-
+    end
+  end
+end
+-%>
 
-                               NS                     dns.jool.trs.io.
-                               NS                     dns.duna.trs.io.
-
-                               A                      5.39.90.146
-                               AAAA                   2001:41d0:8:9c92::1
+                               A                      <%= @hosts['dres']['physical']['ip'] %>
+                               AAAA                   <%= @hosts['dres']['lb']['ip6'] %>
 
                                MX             1       mail.s.tremoureux.fr.
-                               IN TXT                 "v=spf1 ip4:188.165.216.190 ip6:2001:41d0:2:a3be:1::2 -all"
+                               IN TXT                 "v=spf1 ip4:<%= @hosts[@fronts['mail']]['physical']['ip'] %> ip6:<%= @hosts[@fronts['mail']]['mail']['ip6'] %> -all"
 
 default._domainkey             IN TXT "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDJBOzCOLJHGTIJhxZMlqUMg+YlMmgMozSOGcPixoqV9zAw6kSSPJ3GDNoxAjYi8NooRrlKalF0ZFDyTVdkJJz6ETpPUjgQfEoEGrIHIlvRPaiZXk0/umkqeW2WIxDN56Mrt8N269IaL/GoVyeMjx4zO9PRF4uUkZyz0ICmBCH2kQIDAQAB"
 
 
-s                              A                      5.39.90.146
-                               AAAA                   2001:41d0:8:9c92::1
+s                              CNAME                  lb.trs.io.
 
 $ORIGIN s.tremoureux.fr.
 
-; BERGEN (OVH)
-bergen                         A                      87.98.218.210
-                               AAAA                   2001:41d0:1:49d2::1
-
-web.bergen                     A                      87.98.218.210
-                               AAAA                   2001:41d0:1:49d2:1::3
-
-mail.bergen                    A                      91.121.61.39
-                               AAAA                   2001:41d0:1:49d2:1::4
-
-im.bergen                      A                      91.121.61.39
-                               AAAA                   2001:41d0:1:49d2:1::4
-
-; SELF HOSTING
-home                           CNAME                  tsacha.dtdns.net.
-
-; FRONT DNS
-dns                            CNAME                  dns.oslo
-mail                           CNAME                  mail.jool.trs.io.
-www                            CNAME                  kerbin.trs.io.
-webmail                        CNAME                  web.duna.trs.io.
-psql                           CNAME                  psql.jool.trs.io.
-ldap                           CNAME                  ldap.jool.trs.io.
-im                             CNAME                  im.jool.trs.io.
-pub                            CNAME                  im.jool.trs.io.
+www                            CNAME                  lb.trs.io.
+webmail                        CNAME                  lb.trs.io.
+im                             CNAME                  im.trs.io.
+pub                            CNAME                  im.trs.io.
+mail                           CNAME                  mail.trs.io.
+ldap                           CNAME                  ldap.trs.io.
 
 ; WEB
 drafts                         CNAME                  www
@@ -66,10 +58,7 @@ _xmpp-server._tcp              SRV     5 0 5269       im.s
 ; MAIL
 mail.tremoureux.fr.            CNAME                  mail.s
 
-
 ; TMP
-
-
 44EECC87F423A79FFB3BA386DE941F4D.s.tremoureux.fr. 10800 IN CNAME 09C7C112365D0455216E7464E4FB9C1304E80C1B.comodoca.com.
 44EECC87F423A79FFB3BA386DE941F4D.mail.s.tremoureux.fr. 10800 IN CNAME 09C7C112365D0455216E7464E4FB9C1304E80C1B.comodoca.com.
 44EECC87F423A79FFB3BA386DE941F4D.webmail.s.tremoureux.fr. 10800 IN CNAME 09C7C112365D0455216E7464E4FB9C1304E80C1B.comodoca.com.

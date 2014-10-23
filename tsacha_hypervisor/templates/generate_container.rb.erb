@@ -37,7 +37,11 @@ OptionParser.new do |opts|
     options[:gateway6] = g6
   end
 
-  opts.on("--version [VERSION]", "CentOS version") do |v|
+  opts.on("--os [VERSION]", "OS version") do |os|
+    options[:os] = os
+  end
+
+  opts.on("--version [VERSION]", "OS version") do |v|
     options[:version] = v
   end
 
@@ -61,6 +65,10 @@ OptionParser.new do |opts|
     options[:idhypervisor] = ih
   end
 
+  opts.on("--provider [Provider]", "Provider") do |pr|
+    options[:provider] = pr
+  end
+
 end.parse!
 
 ip_split = options[:ip].split(".")
@@ -73,14 +81,24 @@ if options[:version].nil? then
   options[:version] = "7"
 end
 
-if not File.exist?("/srv/centos#{options[:version]}.tar") then
-  system("yum -y --installroot=/srv/tmprootfs --releasever=#{options[:version]} --nogpg install systemd passwd yum centos-release vim-minimal openssh-server procps-ng iputils emacs-nox wget curl git")
-  system("yum -y --installroot=/srv/tmprootfs --releasever=#{options[:version]} --nogpg groupinstall 'Minimal Install'")
-  system("yum -y --installroot=/srv/tmprootfs --releasever=#{options[:version]} --nogpg groupinstall 'Development Tools'")
+if options[:os].nil? then
+  options[:os] = "centos"
+end
+
+if options[:os] == "fedora" then
+   options[:repo] = "--disablerepo='*' --enablerepo='fedora'"
+else
+  options[:repo] = ""
+end
+
+if not File.exist?("/srv/#{options[:os]}#{options[:version]}.tar") then
+  system("yum -y --installroot=/srv/tmprootfs --releasever=#{options[:version]} #{options[:repo]} --nogpg install systemd passwd yum #{options[:os]}-release vim-minimal openssh-server procps-ng iputils emacs-nox wget curl git")
+  system("yum -y --installroot=/srv/tmprootfs --releasever=#{options[:version]} #{options[:repo]} --nogpg groupinstall 'Minimal Install'")
+  system("yum -y --installroot=/srv/tmprootfs --releasever=#{options[:version]} #{options[:repo]} --nogpg groupinstall 'Development Tools'")
   Dir.chdir("tmprootfs")
-  system("tar cvf centos#{options[:version]}.tar --exclude 'centos#{options[:version]}.tar' .")
+  system("tar cvf #{options[:os]}#{options[:version]}.tar --exclude '#{options[:os]}#{options[:version]}.tar' .")
   Dir.chdir("..")
-  File.rename("tmprootfs/centos#{options[:version]}.tar","centos#{options[:version]}.tar")
+  File.rename("tmprootfs/#{options[:os]}#{options[:version]}.tar","#{options[:os]}#{options[:version]}.tar")
   FileUtils.rm_rf("tmprootfs")
 end
 
@@ -90,7 +108,7 @@ Dir.chdir('/var/lib/lxc')
 if not File.exists?(options[:hostname])
   FileUtils.mkdir_p("/var/lib/lxc/"+options[:hostname]+"/rootfs")
   Dir.chdir("/var/lib/lxc/"+options[:hostname]+"/rootfs")
-  system("tar xvf /srv/centos#{options[:version]}.tar")
+  system("tar xvf /srv/#{options[:os]}#{options[:version]}.tar")
 end
 
 pubkey = File.read("/root/.ssh/id_ecdsa.pub")
@@ -140,7 +158,9 @@ EOF
     out << outdata
  end
 
-  outdata = <<EOF
+
+  if(options[:provider] == "ovh") then
+    outdata = <<EOF
 DEVICE=eth1
 TYPE=Ethernet
 IPV6INIT=yes
@@ -151,22 +171,40 @@ BOOTPROTO=none
 NM_CONTROLLED=no
 DELAY=0
 EOF
+  elsif(options[:provider] == "hetzner") then
+    outdata = <<EOF
+DEVICE=eth1
+TYPE=Ethernet
+IPV6INIT=yes
+IPV6_AUTOCONF=no
+IPV6ADDR=#{options[:ip6]}/#{options[:cidr6]}
+IPV6_DEFAULTGW=#{options[:gateway6]}
+IP6_DEFAULTDEV=eth1
+ONBOOT=yes
+BOOTPROTO=none
+NM_CONTROLLED=no
+DELAY=0
+EOF
+  end
+
   File.open("/etc/sysconfig/network-scripts/ifcfg-eth1", 'w+') do |out|
     out << outdata
  end
 
-  outdata = <<EOF
+ if(options[:provider] == "ovh") then
+   outdata = <<EOF
 if [[ "$1" == "eth1" ]]
 then
   /sbin/ip -f inet6 route add #{options[:gateway6]} dev eth1
   /sbin/ip -f inet6 route add default via #{options[:gateway6]}
 fi
 EOF
-  File.open("/sbin/ifup-local", 'w+') do |out|
-    out << outdata
- end
+   File.open("/sbin/ifup-local", 'w+') do |out|
+      out << outdata
+    end
 
-  File.chmod(0755,"/sbin/ifup-local")  
+   File.chmod(0755,"/sbin/ifup-local")  
+ end
   
   outdata = <<EOF
 nameserver #{options[:dns]}

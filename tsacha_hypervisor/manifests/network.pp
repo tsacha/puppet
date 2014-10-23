@@ -11,6 +11,7 @@ class tsacha_hypervisor::network {
   $ip6_address = $hosts[$hostname]['physical']['ip6']
   $cidr6 = $hosts[$hostname]['physical']['cidr6']
   $gateway6 = $hosts[$hostname]['physical']['gateway6']
+  $provider = $hosts[$hostname]['physical']['provider']
   
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
@@ -76,10 +77,19 @@ class tsacha_hypervisor::network {
   }
 
  # Use bridge
-  exec { "switch-bridge":
-    command => "ip link set eth0 master br-ex; ip route del default via $gateway dev eth0; ip route add default via $gateway dev br-ex",
-    unless => "ip route list 0/0 | grep br-ex",
-    require => [Exec["addr-extern-bridge"],Exec["up-extern-bridge"]]
+  if($provider == "ovh") {
+    exec { "switch-bridge":
+      command => "ip link set eth0 master br-ex; ip route del default via $gateway dev eth0; ip route add default via $gateway dev br-ex",
+      unless => "ip route list 0/0 | grep br-ex",
+      require => [Exec["addr-extern-bridge"],Exec["up-extern-bridge"]]
+    }
+  }
+  if($provider == "hetzner") {
+    exec { "switch-bridge":
+      command => "ip link set eth0 master br-ex; ip route del $gateway dev eth0; ip route del default via $gateway dev eth0; ip route add $gateway dev eth0; ip route add default via $gateway dev br-ex",
+      unless => "ip route list 0/0 | grep br-ex",
+      require => [Exec["addr-extern-bridge"],Exec["up-extern-bridge"]]
+    }
   }
 
   exec { "rm-addr-origin":
@@ -108,12 +118,15 @@ class tsacha_hypervisor::network {
     require => [Exec["addr-extern-bridge"],Exec["up-extern-bridge"],Exec["route-gateway6"]]
   }
 
-  file { "/sbin/ifup-local":
-    owner => root,
-    group => root,
-    mode => '0755',
-    ensure => present,
-    content => template('tsacha_hypervisor/ifup.centos'),
+
+  if($provider == "ovh") {
+    file { "/sbin/ifup-local":
+      owner => root,
+      group => root,
+      mode => '0755',
+      ensure => present,
+      content => template('tsacha_hypervisor/ifup.centos'),
+    }
   }
 
   file { "/etc/sysconfig/network":

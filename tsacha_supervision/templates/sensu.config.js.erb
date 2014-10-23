@@ -5,7 +5,7 @@
       "cert_chain_file": "/etc/sensu/ssl/cert.pem"
     },
     "port": "5671",
-    "host": "kerbin.trs.io",
+    "host": "dres.trs.io",
     "user": "sensu",
     "password": "<%= @sensu_passwd %>",
     "vhost": "/sensu"
@@ -15,7 +15,7 @@
     "port": 6379
   },
   "api": {
-    "host": "<%= hosts['kerbin']['physical']['ip6'] %>",
+    "host": "<%= hosts['dres']['physical']['ip6'] %>",
     "port": 4567
   },
   "checks": {

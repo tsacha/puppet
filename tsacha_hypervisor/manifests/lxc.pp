@@ -33,6 +33,9 @@ class tsacha_hypervisor::lxc {
     content => template('tsacha_hypervisor/ip-neigh.erb')
   }
 
+  package { 'bc':
+    ensure => installed
+  }
 
   exec { "update-grub":
     command => "grub2-mkconfig -o /boot/grub2/grub.cfg",

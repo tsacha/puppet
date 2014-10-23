@@ -2,12 +2,26 @@ class tsacha_web::certs {
 
     Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/", "/usr/local/bin" ] }
 
+
+    group { 'apache':
+      ensure => present
+    }
+    
+    user { 'apache':
+      ensure => present,
+      shell => "/sbin/nologin",
+      home => "/var/www",
+      gid => 'apache',
+      require => Group['apache']
+    }
+
     file { "/srv/certs":
       ensure => directory,
       owner => apache,
       group => apache,
       mode => '0500',
-      seltype =>'httpd_config_t'
+      seltype =>'httpd_config_t',
+      require => User['apache']
     }
 
     file { "/srv/certs/s.tremoureux.fr.crt":
@@ -15,7 +29,7 @@ class tsacha_web::certs {
       owner => apache,
       group => apache,
       mode => '0400',
-      require => File['/srv/certs'],
+      require => [File['/srv/certs'],User['apache']],
       source => "puppet:///modules/tsacha_private/global/s.tremoureux.fr.crt",
       seltype =>'httpd_config_t'      
     }    
@@ -25,7 +39,7 @@ class tsacha_web::certs {
       owner => apache,
       group => apache,
       mode => '0400',
-      require => File['/srv/certs'],
+      require => [File['/srv/certs'],User['apache']],
       source => "puppet:///modules/tsacha_private/global/s.tremoureux.fr.key",
       seltype =>'httpd_config_t'      
     }    
@@ -35,7 +49,7 @@ class tsacha_web::certs {
       owner => apache,
       group => apache,
       mode => '0400',
-      require => File['/srv/certs'],
+      require => [File['/srv/certs'],User['apache']],
       source => "puppet:///modules/tsacha_private/global/tremoureux.fr.crt",
       seltype =>'httpd_config_t'      
     }    
@@ -45,7 +59,7 @@ class tsacha_web::certs {
       owner => apache,
       group => apache,
       mode => '0400',
-      require => File['/srv/certs'],
+      require => [File['/srv/certs'],User['apache']],
       source => "puppet:///modules/tsacha_private/global/tremoureux.fr.key",
       seltype =>'httpd_config_t'      
     }    
@@ -55,7 +69,7 @@ class tsacha_web::certs {
       owner => apache,
       group => apache,
       mode => '0400',
-      require => File['/srv/certs'],
+      require => [File['/srv/certs'],User['apache']],
       source => "puppet:///modules/tsacha_private/global/gandi.pem",
       seltype =>'httpd_config_t'      
     }    
@@ -65,7 +79,7 @@ class tsacha_web::certs {
       owner => apache,
       group => apache,
       mode => '0400',
-      require => File['/srv/certs'],
+      require => [File['/srv/certs'],User['apache']],
       source => "puppet:///modules/tsacha_private/global/glenn.pro.crt",
       seltype =>'httpd_config_t'      
     }    
@@ -75,7 +89,7 @@ class tsacha_web::certs {
       owner => apache,
       group => apache,
       mode => '0400',
-      require => File['/srv/certs'],
+      require => [File['/srv/certs'],User['apache']],
       source => "puppet:///modules/tsacha_private/global/glenn.pro.key",
       seltype =>'httpd_config_t'      
     }    

@@ -11,25 +11,32 @@ define tsacha_hypervisor::generic {
 
   $hosts = hiera_hash('hosts')
 
+  $provider = $hosts[$hostname]['physical']['provider']  
   $idhypervisor = $hosts[$hostname]['physical']['idhypervisor']
   $cidr = $hosts[$hostname]['physical']['cidr_private']
   $cidr6 = $hosts[$hostname]['physical']['cidr6']
   $gateway = $hosts[$hostname]['physical']['ip_private_address']
-  $gateway6 = $hosts[$hostname]['physical']['gateway6']
-  $puppet = $hosts['kerbin']['physical']['fqdn']
-  $ip_puppet = $hosts['kerbin']['physical']['ip']
-  $ip6_puppet = $hosts['kerbin']['physical']['ip6']
+  if($provider == "ovh") {
+    $gateway6 = $hosts[$hostname]['physical']['gateway6']
+  }
+  if($provider == "hetzner") {
+    $gateway6 = $hosts[$hostname]['physical']['ip6']
+  }
+  $puppet = $hosts['dres']['physical']['fqdn']
+  $ip_puppet = $hosts['dres']['physical']['ip']
+  $ip6_puppet = $hosts['dres']['physical']['ip6']
   $fqdn = $hosts[$hostname][$cont]['fqdn']
   $ip = $hosts[$hostname][$cont]['ip']
   $ip6 = $hosts[$hostname][$cont]['ip6']
   $version = $hosts[$hostname][$cont]['version']
+  $os = $hosts[$hostname][$cont]['os'] 
 
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
   exec { "generate-$cont-container":
-    command => "ruby /srv/generate_container.rb --fqdn $fqdn --ip $ip --cidr $cidr --gateway $gateway --ip6 $ip6 --cidr6 $cidr6 --gateway6 $gateway6 --dns 8.8.8.8 --puppet $puppet --ippuppet $ip_puppet --ip6puppet $ip6_puppet --idhypervisor $idhypervisor --version $version",
+    command => "ruby /srv/generate_container.rb --fqdn $fqdn --ip $ip --cidr $cidr --gateway $gateway --ip6 $ip6 --cidr6 $cidr6 --gateway6 $gateway6 --dns 8.8.8.8 --puppet $puppet --ippuppet $ip_puppet --ip6puppet $ip6_puppet --idhypervisor $idhypervisor --version $version --os $os --provider $provider",
     unless => "lxc-ls | grep $cont",
-    timeout => 500
+    timeout => 1000
   }
 
    file { "/usr/lib/systemd/system/$cont.service":

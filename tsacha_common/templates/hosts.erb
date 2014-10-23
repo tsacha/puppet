@@ -11,14 +11,21 @@ ff02::2         ip6-allrouters
     host_name = conf['fqdn']
     host_address = conf['ip']
     host_address6 = conf['ip6']
+    if(host_address6 == @ipaddress6) then
+      currenthost = true
+    else
+      currenthost = false
+    end
     if(hostname != "physical") then
       short = hostname+"-"+conf['fqdn'].split('.')[1]
     else
       short = key
     end
 -%>
-<%= host_address %> <%= host_name %> <%= short %>
-<%= host_address6 %> <%= host_name %> <%= short %>
+<%= host_address %> <%= host_name %> <%= short %> <%- if (currenthost == true and hostname != "physical") then -%> <%= @hostname %><%- end -%>
+
+<%= host_address6 %> <%= host_name %> <%= short %> <%- if (currenthost == true and hostname != "physical") then -%> <%= @hostname %><%- end -%>
+
 <%-
   end
 end

@@ -9,6 +9,7 @@ class tsacha_containers::network {
   $ip6_address = $hosts[$hypervisor][$hostname]['ip6']
   $cidr6 = $hosts[$hypervisor]['physical']['cidr6']
   $gateway6 = $hosts[$hypervisor]['physical']['gateway6']
+  $provider = $hosts[$hypervisor]['physical']['provider']  
   
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
@@ -27,6 +28,16 @@ class tsacha_containers::network {
     ensure => present,
     content => template('tsacha_containers/eth1.erb')
   }
+
+  if($provider == "ovh") {
+    file { "/sbin/ifup-local":
+      owner => root,
+      group => root,
+      mode => '0755',
+      ensure => present,
+      content => template('tsacha_containers/ifup.centos'),
+    }
+  }  
 
   file { "/etc/sysconfig/network":
     owner => root,

@@ -2,7 +2,7 @@ class tsacha_common::puppet {
   Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
   $hosts = hiera_hash('hosts')
-  $puppet = $hosts['kerbin']['physical']['fqdn']
+  $puppet = $hosts['dres']['physical']['fqdn']
   
   file { "/etc/puppet/puppet.conf":
     owner => root,

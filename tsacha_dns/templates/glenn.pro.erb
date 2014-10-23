@@ -1,21 +1,34 @@
+<%-
+x = DateTime.now
+serial = x.strftime("%Y%m%d")+(((x.strftime("%H").to_i*3600+x.strftime("%M").to_i*60+x.strftime("%S").to_i)/864).to_s.rjust(2,'0'))
+-%>
+
 $TTL 180
 glenn.pro.           IN SOA    glenn.pro. sacha.tremoureux.fr. (
-                         2014101301 ; serial
+                         <%= serial %> ; serial
                          86400      ; refresh (1 day)
                          3600       ; retry (1 hour)
                          3600000    ; expire (5 weeks 6 days 16 hours)
                          300        ; minimum (5 minutes)
                      )
 
-                     NS                     dns.duna.trs.io.
-                     NS                     dns.jool.trs.io.
+<%- 
+@hosts.each do |key,value|
+  value.each do |hostname,conf|
+    if hostname == "dns" then
+%>
+ NS <%= conf['fqdn'] %>.
+<%-
+    end
+  end
+end
+-%>
 
-                     A                      5.39.90.146
-                     AAAA                   2001:41d0:8:9c92::1
+                     A                      <%= @hosts['dres']['physical']['ip'] %>
+                     AAAA                   <%= @hosts['dres']['lb']['ip6'] %>
 
 
-                     IN TXT                 "v=spf1 ip4:188.165.204.102 ip6:2001:41d0:2:9566:1::4 -all"
-                     IN TXT                 "v=spf1 ip4:188.165.204.102 ip6:2001:41d0:2:9566:1::4 ip6:2001:41d0:2:a3be:1::4 ip4:188.165.216.190 -all"
+                     IN TXT                 "v=spf1 ip4:<%= @hosts[@fronts['mail']]['physical']['ip'] %> ip6:<%= @hosts[@fronts['mail']]['mail']['ip6'] %> -all"
                      MX             1       mail.trs.io.
 
 www                  CNAME                  web.trs.io.
